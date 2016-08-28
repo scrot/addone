@@ -1,33 +1,31 @@
 package nl.rdewildt.addone;
 
-import java.util.Observable;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /**
  * Created by roy on 7/11/16.
  */
 public class Stats {
     private Integer counter;
-    private StatsListener listener;
+    private Calendar lastUpdated;
 
-    public Stats(Integer counter) {
-        this.counter = counter;
+    public Stats() {
+        this.counter = 0;
+        this.lastUpdated = new GregorianCalendar();
     }
 
     public Integer getCounter() {
         return counter;
     }
 
-    public void IncrementCounter(Integer i){
-        this.counter += i;
-        this.listener.OnCounterIncreased(this);
+    public void setCounter(Integer counter) {
+        this.counter = counter;
+        this.lastUpdated = new GregorianCalendar();
     }
 
-    public void resetCounter(){
-        this.counter = 0;
-        this.listener.OnCounterIncreased(this);
-    }
-
-    public void setStatsListener(StatsListener listener) {
-        this.listener = listener;
+    public Calendar getLastUpdated() {
+        return lastUpdated;
     }
 }
