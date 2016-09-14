@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -14,81 +13,55 @@ import android.widget.TextView;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.gson.Gson;
 
 import org.json.JSONException;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
-    private Context context;
-    Stats stats;
-
     private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
-        this.context = this.getApplicationContext();
-
-        // Try read stats file or create one
-        File statsFile = new File(context.getFilesDir(), "stats.json");
-        if (statsFile.exists()) {
-            try {
-                this.stats = readStats(statsFile);
-            } catch (JSONException | IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            this.stats = new Stats();
-        }
+        StatsMaintainer statsMaintainer = initStatsMaintainer(getApplicationContext());
 
         // Init counter
         TextView counter = (TextView) findViewById(R.id.counter);
-        counter.setText(String.valueOf(stats.getCounter()));
+        counter.setText(String.valueOf(statsMaintainer.getCounter()));
 
 
         // On stats changed
-        this.stats.setStatsListener(new StatsListener() {
-            @Override
-            public void OnCounterIncreased(Stats stats) {
-                try {
-                    writeStats(stats);
-                    TextView counter = (TextView) findViewById(R.id.counter);
-                    counter.setText(String.valueOf(stats.getCounter()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        statsMaintainer.setCounterListener((Integer c) -> {
+            System.out.println(c);
+            counter.setText(String.valueOf(c));
         });
 
         // On + button click
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    stats.incrementCounter(1);
-                    writeStats(stats);
+        fab.setOnClickListener(view -> statsMaintainer.increaseCounter(1));
 
-                    TextView counter = (TextView) findViewById(R.id.counter);
-                    counter.setText(String.valueOf(stats.getCounter()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    private StatsMaintainer initStatsMaintainer(Context context){
+        File statsFile = new File(context.getFilesDir(), "stats.json");
+        StatsMaintainer temp;
+        try {
+            temp = new StatsMaintainer(statsFile);
+        } catch (IOException | JSONException e) {
+            temp = new StatsMaintainer();
+        }
+        return temp;
     }
 
     @Override
@@ -104,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        this.stats.resetStats();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
@@ -112,17 +84,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private Stats readStats(File statsFile) throws JSONException, IOException {
-        return new Gson().fromJson(new FileReader(statsFile), Stats.class);
-    }
-
-    private void writeStats(Stats stats) throws IOException {
-        String statsJson = new Gson().toJson(stats);
-        try (FileOutputStream fileOutputStream = openFileOutput("stats.json", MODE_PRIVATE)) {
-            fileOutputStream.write(statsJson.getBytes());
-        }
     }
 
     @Override

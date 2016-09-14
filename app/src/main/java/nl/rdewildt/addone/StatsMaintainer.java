@@ -1,62 +1,71 @@
 package nl.rdewildt.addone;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import android.content.Context;
 
-import nl.rdewildt.addone.conditions.Condition;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+
+import nl.rdewildt.addone.updater.CounterUpdater;
+import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
 /**
  * Created by roydewildt on 28/08/16.
  */
 public class StatsMaintainer {
     private Stats stats;
-    private StatsListener statsListener;
-
-    private Collection<Condition> increaseCounterConditions;
-    private Collection<Condition> decreaseCounterConditions;
+    private CounterUpdater counterUpdater;
+    private CounterListener counterListener;
 
     public StatsMaintainer() {
         this.stats = new Stats();
-        this.statsListener = () -> {};
-        this.increaseCounterConditions = new ArrayList<>();
-        this.decreaseCounterConditions = new ArrayList<>();
+        initialize();
     }
 
-    public void resetStats(){
-        this.stats = new Stats();
+    public StatsMaintainer(File statsFile) throws IOException, JSONException {
+        this.stats = readStats(statsFile);
+        initialize();
+    }
+
+    private void initialize(){
+        this.counterUpdater = new WeeklyCounterUpdater(this.stats);
     }
 
     public void increaseCounter(Integer i){
-        if(increaseCounterConditions.isEmpty() ||
-                !increaseCounterConditions.stream().anyMatch(Condition::isFalse)){
-            stats.setCounter(stats.getCounter() + i);
-        }
+        this.counterUpdater.increaseCounter(i);
+        this.counterListener.onChanged(getCounter());
     }
 
     public void decreaseCounter(Integer i){
-        if(decreaseCounterConditions.isEmpty() ||
-                !decreaseCounterConditions.stream().anyMatch(Condition::isFalse)){
-            stats.setCounter(stats.getCounter() - i);
+        this.counterUpdater.decreaseCounter(i);
+        this.counterListener.onChanged(getCounter());
+    }
+
+    public Integer getCounter(){
+        return getStats().getCounter();
+    }
+
+    public Stats getStats(){
+        return this.stats;
+    }
+
+    public void setCounterListener(CounterListener f){
+        this.counterListener = f;
+    }
+
+    private Stats readStats(File statsFile) throws JSONException, IOException {
+        return new Gson().fromJson(new FileReader(statsFile), Stats.class);
+    }
+
+    private void writeStats(Stats stats, Context context) throws IOException {
+        String statsJson = new Gson().toJson(stats);
+        try (FileOutputStream fileOutputStream = context.openFileOutput("stats.json", Context.MODE_PRIVATE)) {
+            fileOutputStream.write(statsJson.getBytes());
         }
-    }
-
-    public Stats getStats() {
-        return stats;
-    }
-
-    public StatsListener getStatsListener() {
-        return statsListener;
-    }
-
-    public void setStatsListener(StatsListener statsListener) {
-        this.statsListener = statsListener;
-    }
-
-    public void addIncreaseCounterCondition(Condition condition){
-        this.increaseCounterConditions.add(condition);
-    }
-
-    public void addDecreaseCounterCondition(Condition condition){
-        this.decreaseCounterConditions.add(condition);
     }
 }

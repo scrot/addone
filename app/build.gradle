@@ -33,4 +33,5 @@ dependencies {
     compile 'com.android.support:design:24.2.0'
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.google.android.gms:play-services-appindexing:9.4.0'
+    compile group: 'joda-time', name: 'joda-time', version: '2.9.4'
 }
