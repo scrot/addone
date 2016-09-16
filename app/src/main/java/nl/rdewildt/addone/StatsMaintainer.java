@@ -58,11 +58,11 @@ public class StatsMaintainer {
         this.counterListener = f;
     }
 
-    private Stats readStats(File statsFile) throws JSONException, IOException {
+    public Stats readStats(File statsFile) throws JSONException, IOException {
         return new Gson().fromJson(new FileReader(statsFile), Stats.class);
     }
 
-    private void writeStats(Stats stats, Context context) throws IOException {
+    public void writeStats(Context context) throws IOException {
         String statsJson = new Gson().toJson(stats);
         try (FileOutputStream fileOutputStream = context.openFileOutput("stats.json", Context.MODE_PRIVATE)) {
             fileOutputStream.write(statsJson.getBytes());

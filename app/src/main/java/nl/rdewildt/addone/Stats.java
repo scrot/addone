@@ -30,4 +30,16 @@ public class Stats {
     public void setLastUpdated(DateTime lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Stats){
+            Stats stats = (Stats) obj;
+            return counter.equals(stats.getCounter())
+                    && lastUpdated.equals(stats.getLastUpdated());
+        }
+        else {
+            return false;
+        }
+    }
 }
