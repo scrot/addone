@@ -5,5 +5,5 @@ package nl.rdewildt.addone.updater;
  */
 public interface CounterUpdater {
     void increaseCounter(Integer i);
-    void decreaseCounter(Integer i);
+    void decreaseCounter();
 }

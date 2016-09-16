@@ -19,13 +19,15 @@ public class WeeklyCounterUpdater implements CounterUpdater {
     public void increaseCounter(Integer i) {
         if(weeksSinceLastUpdate() > 0){
             stats.setCounter(stats.getCounter() + i);
+            stats.setLastUpdated(new DateTime());
         }
     }
 
     @Override
-    public void decreaseCounter(Integer i) {
-        if(weeksSinceLastUpdate() > 0){
-            stats.setCounter(stats.getCounter() - (i * weeksSinceLastUpdate()));
+    public void decreaseCounter() {
+        if(weeksSinceLastUpdate() > 0 && stats.getCounter() > 0){
+            stats.setCounter(stats.getCounter() - weeksSinceLastUpdate());
+            stats.setLastUpdated(new DateTime());
         }
     }
 

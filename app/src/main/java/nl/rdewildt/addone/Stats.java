@@ -21,10 +21,13 @@ public class Stats {
 
     public void setCounter(Integer counter) {
         this.counter = counter;
-        this.lastUpdated = new DateTime();
     }
 
     public DateTime getLastUpdated() {
         return lastUpdated;
+    }
+
+    public void setLastUpdated(DateTime lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 }

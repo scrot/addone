@@ -41,8 +41,8 @@ public class StatsMaintainer {
         this.counterListener.onChanged(getCounter());
     }
 
-    public void decreaseCounter(Integer i){
-        this.counterUpdater.decreaseCounter(i);
+    public void decreaseCounter(){
+        this.counterUpdater.decreaseCounter();
         this.counterListener.onChanged(getCounter());
     }
 
