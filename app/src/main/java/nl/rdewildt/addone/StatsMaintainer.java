@@ -3,7 +3,9 @@ package nl.rdewildt.addone;
 import android.content.Context;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import org.joda.time.DateTime;
 import org.json.JSONException;
 
 import java.io.File;
@@ -38,16 +40,16 @@ public class StatsMaintainer {
 
     public void increaseCounter(Integer i){
         this.counterUpdater.increaseCounter(i);
-        this.counterListener.onChanged(getCounter());
+        if(counterListener != null) {
+            counterListener.onChanged(stats.getCounter());
+        }
     }
 
     public void decreaseCounter(){
-        this.counterUpdater.decreaseCounter();
-        this.counterListener.onChanged(getCounter());
-    }
-
-    public Integer getCounter(){
-        return getStats().getCounter();
+        counterUpdater.decreaseCounter();
+        if(counterListener != null) {
+            counterListener.onChanged(stats.getCounter());
+        }
     }
 
     public Stats getStats(){
@@ -59,11 +61,15 @@ public class StatsMaintainer {
     }
 
     public Stats readStats(File statsFile) throws JSONException, IOException {
-        return new Gson().fromJson(new FileReader(statsFile), Stats.class);
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(DateTime.class, new DateTimeSerializer());
+        return gsonBuilder.create().fromJson(new FileReader(statsFile), Stats.class);
     }
 
     public void writeStats(Context context) throws IOException {
-        String statsJson = new Gson().toJson(stats);
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(DateTime.class, new DateTimeSerializer());
+        String statsJson = gsonBuilder.create().toJson(stats);
         try (FileOutputStream fileOutputStream = context.openFileOutput("stats.json", Context.MODE_PRIVATE)) {
             fileOutputStream.write(statsJson.getBytes());
         }

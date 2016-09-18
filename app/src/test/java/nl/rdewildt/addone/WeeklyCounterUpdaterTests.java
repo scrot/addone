@@ -14,7 +14,7 @@ import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
  */
 public class WeeklyCounterUpdaterTests {
     @Test
-    public void counterIncrease_IsCorrect(){
+    public void counterIncrease(){
         Stats stats = new Stats();
         CounterUpdater updater = new WeeklyCounterUpdater(stats);
         assertThat(stats.getCounter(), is(0));
@@ -30,7 +30,7 @@ public class WeeklyCounterUpdaterTests {
     }
 
     @Test
-    public void counterDecrease_IsCorrect(){
+    public void counterDecrease(){
         Stats stats = new Stats();
         DateTime lastUpdate = new DateTime().minusWeeks(3);
 

@@ -36,10 +36,18 @@ public class Stats {
         if(obj instanceof Stats){
             Stats stats = (Stats) obj;
             return counter.equals(stats.getCounter())
-                    && lastUpdated.equals(stats.getLastUpdated());
+                    && lastUpdated.toString().equals(stats.getLastUpdated().toString());
         }
         else {
             return false;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 101;
+        result = result * 31 + counter.hashCode();
+        result = result * 31 + getLastUpdated().hashCode();
+        return result;
     }
 }

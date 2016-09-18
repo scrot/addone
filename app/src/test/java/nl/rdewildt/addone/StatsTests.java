@@ -11,14 +11,14 @@ import static org.junit.Assert.*;
  */
 public class StatsTests {
     @Test
-    public void statsInit_isCorrect() {
+    public void statsInit() {
         Stats stats = new Stats();
         assertThat(stats.getCounter(), is(0));
         assertThat(stats.getLastUpdated().getWeekOfWeekyear(), is(new DateTime().getWeekOfWeekyear() - 1));
     }
 
     @Test
-    public void statsEqual_isCorrect() {
+    public void statsEqual() {
         DateTime now = new DateTime();
 
         Stats a1 = new Stats();

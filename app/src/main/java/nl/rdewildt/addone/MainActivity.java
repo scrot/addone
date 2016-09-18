@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Init counter
         TextView counter = (TextView) findViewById(R.id.counter);
-        counter.setText(String.valueOf(statsMaintainer.getCounter()));
+        counter.setText(String.valueOf(statsMaintainer.getStats().getCounter()));
 
 
         // On stats changed
