@@ -1,6 +1,7 @@
 package nl.rdewildt.addone;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
-        StatsMaintainer statsMaintainer = initStatsMaintainer(getApplicationContext());
+        StatsMaintainer statsMaintainer = new StatsMaintainer(getApplicationContext());
 
         // Init counter
         TextView counter = (TextView) findViewById(R.id.counter);
@@ -53,15 +54,10 @@ public class MainActivity extends AppCompatActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    private StatsMaintainer initStatsMaintainer(Context context){
-        File statsFile = new File(context.getFilesDir(), "stats.json");
-        StatsMaintainer temp;
-        try {
-            temp = new StatsMaintainer(statsFile);
-        } catch (IOException | JSONException e) {
-            temp = new StatsMaintainer();
-        }
-        return temp;
+    public void openSettings(MenuItem item) {
+        System.out.println("Settings Clicked!");
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 
     @Override
