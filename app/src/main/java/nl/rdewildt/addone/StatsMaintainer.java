@@ -1,13 +1,10 @@
 package nl.rdewildt.addone;
 
 import android.content.Context;
-import android.graphics.Path;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import org.joda.time.DateTime;
-import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,7 +20,6 @@ import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
  */
 public class StatsMaintainer {
     private Context context;
-    private Stats stats;
     private File statsFile;
     private CounterUpdater counterUpdater;
     private CounterListener counterListener;
@@ -31,36 +27,30 @@ public class StatsMaintainer {
     public StatsMaintainer(Context context){
         this.context = context;
         this.statsFile = new File(context.getFilesDir(), "stats.json");
-
-        Stats stats = readStats();
-        if(stats == null){
-            stats = new Stats();
+        if(readStats() == null){
+            writeStats(new Stats());
         }
-        this.stats = stats;
-
-        initialize();
-    }
-
-    private void initialize(){
-        this.counterUpdater = new WeeklyCounterUpdater(this.stats);
+        this.counterUpdater = new WeeklyCounterUpdater();
     }
 
     public void increaseCounter(Integer i){
-        this.counterUpdater.increaseCounter(i);
-        if(counterListener != null) {
-            counterListener.onChanged(stats.getCounter());
-        }
+        setStats(counterUpdater.increaseCounter(getStats(), i));
     }
 
     public void decreaseCounter(){
-        counterUpdater.decreaseCounter();
-        if(counterListener != null) {
-            counterListener.onChanged(stats.getCounter());
-        }
+        setStats(counterUpdater.decreaseCounter(getStats()));
     }
 
     public Stats getStats(){
-        return this.stats;
+        return readStats();
+    }
+
+
+    public void setStats(Stats stats){
+        writeStats(stats);
+        if(counterListener != null) {
+            counterListener.onChanged(stats.getCounter());
+        }
     }
 
     public void setCounterListener(CounterListener f){
@@ -71,16 +61,16 @@ public class StatsMaintainer {
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .registerTypeAdapter(DateTime.class, new DateTimeSerializer());
 
-        Stats rStats = null;
+        Stats stats = null;
         try {
             return gsonBuilder.create().fromJson(new FileReader(statsFile), Stats.class);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        return rStats;
+        return stats;
     }
 
-    public void writeStats() {
+    public void writeStats(Stats stats) {
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .registerTypeAdapter(DateTime.class, new DateTimeSerializer());
         String statsJson = gsonBuilder.create().toJson(stats);

@@ -4,6 +4,9 @@
     <string name="goals">Goals</string>
     <string name="title_activity_settings">Settings</string>
 
+    <string name="pref_header_counter">Counter Behaviour</string>
+    <string name="pref_counter_value">Counter value</string>
+
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
