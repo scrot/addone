@@ -10,19 +10,19 @@ import nl.rdewildt.addone.Stats;
 public class WeeklyCounterUpdater implements CounterUpdater {
 
     @Override
-    public Stats increaseCounter(Stats stats, Integer i) {
+    public void increaseCounter(Stats stats, Integer i) {
         if(weeksSinceLastUpdate(stats) > 0){
-            return new Stats(stats.getCounter() + i);
+            stats.setCounter(stats.getCounter() + i);
+            stats.setLastUpdated(new DateTime());
         }
-        return stats;
     }
 
     @Override
-    public Stats decreaseCounter(Stats stats) {
+    public void decreaseCounter(Stats stats, Integer i) {
         if(weeksSinceLastUpdate(stats) > 0 && stats.getCounter() > 0){
-            return new Stats(stats.getCounter() - weeksSinceLastUpdate(stats));
+            stats.setCounter(stats.getCounter() - i);
+            stats.setLastUpdated(new DateTime());
         }
-        return stats;
     }
 
     private Integer weeksSinceLastUpdate(Stats stats){

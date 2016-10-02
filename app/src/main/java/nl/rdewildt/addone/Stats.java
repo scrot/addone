@@ -6,9 +6,9 @@ import org.joda.time.DateTime;
 /**
  * Created by roy on 7/11/16.
  */
-public final class Stats {
-    private final Integer counter;
-    private final DateTime lastUpdated;
+public class Stats {
+    private Integer counter;
+    private DateTime lastUpdated;
 
     public Stats() {
         this.counter = 0;
@@ -16,7 +16,7 @@ public final class Stats {
     }
 
     public Stats(Integer counter){
-        this.counter = 0;
+        this.counter = counter;
         this.lastUpdated = new DateTime();
     }
 
@@ -26,6 +26,14 @@ public final class Stats {
 
     public DateTime getLastUpdated() {
         return lastUpdated;
+    }
+
+    public void setCounter(Integer counter) {
+        this.counter = counter;
+    }
+
+    public void setLastUpdated(DateTime lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 
     @Override

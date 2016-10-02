@@ -1,6 +1,5 @@
 package nl.rdewildt.addone;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,13 +14,13 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import org.json.JSONException;
-
 import java.io.File;
-import java.io.IOException;
+
+import nl.rdewildt.addone.settings.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity {
     private GoogleApiClient client;
+    private StatsMaintainer statsMaintainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
-        StatsMaintainer statsMaintainer = new StatsMaintainer(getApplicationContext());
+        File statsFile = new File(getApplicationContext().getFilesDir(), "stats.json");
+        this.statsMaintainer = new StatsMaintainer(statsFile);
 
         // Init counter
         TextView counter = (TextView) findViewById(R.id.counter);
@@ -49,33 +49,25 @@ public class MainActivity extends AppCompatActivity {
         // On + button click
         fab.setOnClickListener(view -> statsMaintainer.increaseCounter(1));
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        // implement the App Indexing API
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-    }
-
-    public void openSettings(MenuItem item) {
-        System.out.println("Settings Clicked!");
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        // Start settings activity
         if (id == R.id.action_settings) {
+            System.out.println("Settings Clicked!");
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -120,5 +112,11 @@ public class MainActivity extends AppCompatActivity {
         );
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        statsMaintainer.triggerCounterListener();
     }
 }

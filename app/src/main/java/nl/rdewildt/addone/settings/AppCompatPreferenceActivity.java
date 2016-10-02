@@ -1,4 +1,4 @@
-package nl.rdewildt.addone;
+package nl.rdewildt.addone.settings;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
