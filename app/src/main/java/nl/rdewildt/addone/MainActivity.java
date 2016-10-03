@@ -61,14 +61,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+        Integer id = item.getItemId();
 
         // Start settings activity
-        if (id == R.id.action_settings) {
-            System.out.println("Settings Clicked!");
+        if (id.equals(R.id.action_settings)) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return true;
+        }
+        else if(id.equals(R.id.action_reset)){
+            statsMaintainer.resetStats();
         }
 
         return super.onOptionsItemSelected(item);

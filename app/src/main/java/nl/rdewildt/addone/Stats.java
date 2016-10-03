@@ -1,7 +1,14 @@
 package nl.rdewildt.addone;
 
 
+import com.google.gson.GsonBuilder;
+
 import org.joda.time.DateTime;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Created by roy on 7/11/16.
@@ -54,5 +61,32 @@ public class Stats {
         result = result * 31 + counter.hashCode();
         result = result * 31 + getLastUpdated().hashCode();
         return result;
+    }
+
+
+    public static Stats readStats(File statsFile) {
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(DateTime.class, new DateTimeSerializer());
+
+        Stats stats = null;
+        try {
+            stats = gsonBuilder.create().fromJson(new FileReader(statsFile), Stats.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stats;
+    }
+
+    public static void writeStats(Stats stats, File statsFile) {
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(DateTime.class, new DateTimeSerializer());
+
+        String statsJson = gsonBuilder.create().toJson(stats);
+        try (FileWriter writer = new FileWriter(statsFile)) {
+            writer.write(statsJson);
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

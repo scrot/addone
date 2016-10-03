@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<preference-headers
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <header
+        android:fragment="nl.rdewildt.addone.settings.CounterPreferenceFragment"
+        android:icon="@drawable/ic_info_black_24dp"
+        android:title="Counter Behaviour"
+        android:summary="Change the counter behaviour (e.g. decrease frequention)">
+    </header>
+
+</preference-headers>

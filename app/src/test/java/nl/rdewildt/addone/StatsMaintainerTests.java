@@ -31,9 +31,9 @@ public class StatsMaintainerTests {
         when(mMockContext.openFileOutput("stats.json", Context.MODE_PRIVATE))
                 .thenReturn(new FileOutputStream(temp));
 
-        StatsMaintainer statsMaintainer = new StatsMaintainer();
+        StatsMaintainer statsMaintainer = new StatsMaintainer(temp);
         statsMaintainer.increaseCounter(10);
-        statsMaintainer.writeStats(mMockContext);
+        Stats.writeStats(statsMaintainer.getStats(), temp);
 
         StatsMaintainer statsMaintainerFromFile = new StatsMaintainer(temp);
 

@@ -16,16 +16,16 @@ public class WeeklyCounterUpdaterTests {
     @Test
     public void counterIncrease(){
         Stats stats = new Stats();
-        CounterUpdater updater = new WeeklyCounterUpdater(stats);
+        CounterUpdater updater = new WeeklyCounterUpdater();
         assertThat(stats.getCounter(), is(0));
 
         // Increase counter by one
-        updater.increaseCounter(1);
+        updater.increaseCounter(stats, 1);
         assertThat(stats.getCounter(), is(1));
         assertThat(stats.getLastUpdated().getWeekOfWeekyear(), is(new DateTime().getWeekOfWeekyear()));
 
         //Only once per week update allowed
-        updater.increaseCounter(1);
+        updater.increaseCounter(stats, 1);
         assertThat(stats.getCounter(), is(1));
     }
 
@@ -37,22 +37,22 @@ public class WeeklyCounterUpdaterTests {
         stats.setCounter(3);
         stats.setLastUpdated(lastUpdate);
 
-        CounterUpdater updater = new WeeklyCounterUpdater(stats);
+        CounterUpdater updater = new WeeklyCounterUpdater();
         assertThat(stats.getCounter(), is(3));
 
         //Penalty for each week not updated
-        updater.decreaseCounter();
+        updater.decreaseCounter(stats, 1);
         assertThat(stats.getCounter(), is(0));
         assertThat(stats.getLastUpdated().getWeekOfWeekyear(), is(new DateTime().getWeekOfWeekyear()));
 
         //No penalty when updated the same week
-        updater.decreaseCounter();
+        updater.decreaseCounter(stats, 1);
         assertThat(stats.getCounter(), is(0));
 
         //Score cannot go lower than 0
         stats.setLastUpdated(lastUpdate);
         assertThat(stats.getCounter(), is(0));
-        updater.decreaseCounter();
+        updater.decreaseCounter(stats, 1);
         assertThat(stats.getCounter(), is(0));
 
     }
