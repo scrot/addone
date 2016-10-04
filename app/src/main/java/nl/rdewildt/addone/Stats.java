@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,12 +107,22 @@ public class Stats {
         }
     }
 
-    public static Boolean IsValidStatsFile(File statsFile) throws FileNotFoundException {
+    public static Boolean IsValidStatsFile(File statsFile) throws IOException {
         Collection<String> statsFileKeys = new ArrayList<>();
-        Set<Map.Entry<String, JsonElement>> statsFileKeySet = new JsonParser()
-                .parse(new JsonReader(new FileReader(statsFile)))
-                .getAsJsonObject()
-                .entrySet();
+        Set<Map.Entry<String, JsonElement>> statsFileKeySet;
+        try(FileReader fileReader = new FileReader(statsFile)) {
+            try (JsonReader jsonReader = new JsonReader(fileReader)) {
+                JsonElement statsJsonElement = new JsonParser().parse(jsonReader);
+                if(statsJsonElement.isJsonNull()){
+                    return false;
+                }
+                else {
+                    statsFileKeySet = statsJsonElement
+                            .getAsJsonObject()
+                            .entrySet();
+                }
+            }
+        }
 
         for(Map.Entry<String, JsonElement> statsFileKey : statsFileKeySet){
             statsFileKeys.add(statsFileKey.getKey());

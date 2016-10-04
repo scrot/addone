@@ -20,24 +20,5 @@ import static org.mockito.Mockito.when;
 /**
  * Created by roydewildt on 16/09/16.
  */
-@RunWith(MockitoJUnitRunner.class)
 public class StatsMaintainerTests {
-    @Mock
-    private Context mMockContext;
-
-    @Test
-    public void ReadWriteStats() throws IOException, JSONException {
-        File temp = File.createTempFile("stats", ".json");
-        when(mMockContext.openFileOutput("stats.json", Context.MODE_PRIVATE))
-                .thenReturn(new FileOutputStream(temp));
-
-        StatsMaintainer statsMaintainer = new StatsMaintainer(temp);
-        statsMaintainer.increaseCounter(10);
-        Stats.writeStats(statsMaintainer.getStats(), temp);
-
-        StatsMaintainer statsMaintainerFromFile = new StatsMaintainer(temp);
-
-        assertThat(statsMaintainer.getStats(), is(statsMaintainerFromFile.getStats()));
-
-    }
 }
