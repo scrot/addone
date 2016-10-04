@@ -13,6 +13,8 @@ import com.google.gson.stream.JsonReader;
 
 import org.joda.time.DateTime;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -92,25 +94,25 @@ public class Stats {
     }
 
 
-    public static Stats readStats(File statsFile) throws FileNotFoundException {
-
+    public static Stats readStats(File statsFile) throws IOException {
         Stats stats = null;
-        stats = getStatsGson().fromJson(new FileReader(statsFile), Stats.class);
+        try(BufferedReader fileReader = new BufferedReader(new FileReader(statsFile))) {
+            stats = getStatsGson().fromJson(fileReader, Stats.class);
+        }
         return stats;
     }
 
     public static void writeStats(Stats stats, File statsFile) throws IOException {
         String statsJson = getStatsGson().toJson(stats);
-        try (FileWriter writer = new FileWriter(statsFile)) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(statsFile))) {
             writer.write(statsJson);
-            writer.flush();
         }
     }
 
     public static Boolean IsValidStatsFile(File statsFile) throws IOException {
         Collection<String> statsFileKeys = new ArrayList<>();
         Set<Map.Entry<String, JsonElement>> statsFileKeySet;
-        try(FileReader fileReader = new FileReader(statsFile)) {
+        try(BufferedReader fileReader = new BufferedReader(new FileReader(statsFile))) {
             try (JsonReader jsonReader = new JsonReader(fileReader)) {
                 JsonElement statsJsonElement = new JsonParser().parse(jsonReader);
                 if(statsJsonElement.isJsonNull()){

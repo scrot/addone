@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         TextView counter = (TextView) findViewById(R.id.counter);
         try {
             counter.setText(String.valueOf(statsMaintainer.getStats().getCounter()));
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         try {
             statsMaintainer.triggerCounterListener();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

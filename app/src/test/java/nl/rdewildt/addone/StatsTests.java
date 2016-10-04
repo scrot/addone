@@ -9,8 +9,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -53,7 +57,7 @@ public class StatsTests {
     }
 
     @Test
-    public void ReadWriteStats() throws IOException, JSONException {
+    public void readWriteStats() throws IOException, JSONException {
         File temp = File.createTempFile("stats", ".json");
         when(mMockContext.openFileOutput("stats.json", Context.MODE_PRIVATE))
                 .thenReturn(new FileOutputStream(temp));
@@ -65,6 +69,38 @@ public class StatsTests {
         StatsMaintainer statsMaintainerFromFile = new StatsMaintainer(temp);
 
         assertThat(statsMaintainer.getStats(), is(statsMaintainerFromFile.getStats()));
+
+    }
+
+    @Test
+    public void validateStats() throws IOException, JSONException {
+        // valid stats file
+        File temp = File.createTempFile("stats", ".json");
+        Stats.writeStats(new Stats(),temp);
+        assertThat(Stats.IsValidStatsFile(temp), is(true));
+
+        // Invalid stats file
+        try(BufferedWriter fileWriter = new BufferedWriter(new FileWriter(temp))){
+            fileWriter.write("{\"counter\":0}");
+        }
+        assertThat(Stats.IsValidStatsFile(temp), is(false));
+
+        // Corrupt stats file
+        Stats.writeStats(new Stats(),temp);
+        try(BufferedWriter fileWriter = new BufferedWriter(new FileWriter(temp))){
+            try(BufferedReader fileReader = new BufferedReader(new FileReader(temp))) {
+
+                String line, total = "";
+
+                while ((line = fileReader.readLine()) != null) {
+                    total += line;
+                }
+                fileWriter.write(total.substring(1));
+            }
+        }
+        assertThat(Stats.IsValidStatsFile(temp), is(false));
+
+
 
     }
 }

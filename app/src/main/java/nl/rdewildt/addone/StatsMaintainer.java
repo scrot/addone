@@ -49,7 +49,7 @@ public class StatsMaintainer {
         triggerCounterListener();
     }
 
-    public Stats getStats() throws FileNotFoundException {
+    public Stats getStats() throws IOException {
         return Stats.readStats(statsFile);
     }
 
@@ -57,7 +57,7 @@ public class StatsMaintainer {
         this.counterListener = f;
     }
 
-    public void triggerCounterListener() throws FileNotFoundException {
+    public void triggerCounterListener() throws IOException {
         if(counterListener != null) {
             counterListener.onChanged(getStats().getCounter());
         }
