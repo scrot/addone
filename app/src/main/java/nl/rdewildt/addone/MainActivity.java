@@ -15,6 +15,8 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import nl.rdewildt.addone.settings.SettingsActivity;
 
@@ -35,9 +37,20 @@ public class MainActivity extends AppCompatActivity {
         File statsFile = new File(getApplicationContext().getFilesDir(), "stats.json");
         this.statsMaintainer = new StatsMaintainer(statsFile);
 
+        // Init update counter
+        try {
+            statsMaintainer.decreaseCounter();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         // Init counter
         TextView counter = (TextView) findViewById(R.id.counter);
-        counter.setText(String.valueOf(statsMaintainer.getStats().getCounter()));
+        try {
+            counter.setText(String.valueOf(statsMaintainer.getStats().getCounter()));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
 
         // On stats changed
@@ -47,7 +60,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // On + button click
-        fab.setOnClickListener(view -> statsMaintainer.increaseCounter(1));
+        fab.setOnClickListener(view -> {
+            try {
+                statsMaintainer.increaseCounter(1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
 
         // implement the App Indexing API
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
@@ -70,7 +89,11 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         else if(id.equals(R.id.action_reset)){
-            statsMaintainer.resetStats();
+            try {
+                statsMaintainer.resetStats();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -119,6 +142,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        statsMaintainer.triggerCounterListener();
+        try {
+            statsMaintainer.triggerCounterListener();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,14 +1,32 @@
 package nl.rdewildt.addone;
 
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 
 import org.joda.time.DateTime;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by roy on 7/11/16.
@@ -16,6 +34,7 @@ import java.io.IOException;
 public class Stats {
     private Integer counter;
     private DateTime lastUpdated;
+    private List<String> goals;
 
     public Stats() {
         this.counter = 0;
@@ -35,12 +54,20 @@ public class Stats {
         return lastUpdated;
     }
 
+    public List<String> getGoals() {
+        return goals;
+    }
+
     public void setCounter(Integer counter) {
         this.counter = counter;
     }
 
     public void setLastUpdated(DateTime lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public void setGoals(List<String> goals) {
+        this.goals = goals;
     }
 
     @Override
@@ -64,29 +91,43 @@ public class Stats {
     }
 
 
-    public static Stats readStats(File statsFile) {
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .registerTypeAdapter(DateTime.class, new DateTimeSerializer());
+    public static Stats readStats(File statsFile) throws FileNotFoundException {
 
         Stats stats = null;
-        try {
-            stats = gsonBuilder.create().fromJson(new FileReader(statsFile), Stats.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        stats = getStatsGson().fromJson(new FileReader(statsFile), Stats.class);
         return stats;
     }
 
-    public static void writeStats(Stats stats, File statsFile) {
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .registerTypeAdapter(DateTime.class, new DateTimeSerializer());
-
-        String statsJson = gsonBuilder.create().toJson(stats);
+    public static void writeStats(Stats stats, File statsFile) throws IOException {
+        String statsJson = getStatsGson().toJson(stats);
         try (FileWriter writer = new FileWriter(statsFile)) {
             writer.write(statsJson);
             writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+    }
+
+    public static Boolean IsValidStatsFile(File statsFile) throws FileNotFoundException {
+        Collection<String> statsFileKeys = new ArrayList<>();
+        Set<Map.Entry<String, JsonElement>> statsFileKeySet = new JsonParser()
+                .parse(new JsonReader(new FileReader(statsFile)))
+                .getAsJsonObject()
+                .entrySet();
+
+        for(Map.Entry<String, JsonElement> statsFileKey : statsFileKeySet){
+            statsFileKeys.add(statsFileKey.getKey());
+        }
+
+        Collection<String> statsKeys = new ArrayList<>();
+        List<Field> statsKeysSet = Arrays.asList(Stats.class.getDeclaredFields());
+
+        for(Field field : statsKeysSet){
+            statsKeys.add(field.getName());
+        }
+
+        return statsKeys.size() == statsFileKeys.size() && statsKeys.containsAll(statsFileKeys);
+    }
+
+    private static Gson getStatsGson(){
+        return new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
     }
 }

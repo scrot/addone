@@ -1,6 +1,8 @@
 package nl.rdewildt.addone;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import nl.rdewildt.addone.updater.CounterUpdater;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
@@ -17,33 +19,37 @@ public class StatsMaintainer {
     public StatsMaintainer(File statsFile){
         this.statsFile = statsFile;
 
-        if(Stats.readStats(statsFile) == null){
-            Stats.writeStats(new Stats(), statsFile);
+        try {
+            if(!Stats.IsValidStatsFile(statsFile)){
+                Stats.writeStats(new Stats(), statsFile);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         this.counterUpdater = new WeeklyCounterUpdater();
     }
 
-    public void increaseCounter(Integer i){
+    public void increaseCounter(Integer i) throws IOException {
         Stats stats = getStats();
         counterUpdater.increaseCounter(stats, i);
         Stats.writeStats(stats, statsFile);
         triggerCounterListener();
     }
 
-    public void decreaseCounter(){
+    public void decreaseCounter() throws IOException {
         Stats stats = getStats();
         counterUpdater.decreaseCounter(stats, 1);
         Stats.writeStats(stats, statsFile);
         triggerCounterListener();
     }
 
-    public void resetStats(){
+    public void resetStats() throws IOException {
         Stats.writeStats(new Stats(), statsFile);
         triggerCounterListener();
     }
 
-    public Stats getStats() {
+    public Stats getStats() throws FileNotFoundException {
         return Stats.readStats(statsFile);
     }
 
@@ -51,7 +57,7 @@ public class StatsMaintainer {
         this.counterListener = f;
     }
 
-    public void triggerCounterListener(){
+    public void triggerCounterListener() throws FileNotFoundException {
         if(counterListener != null) {
             counterListener.onChanged(getStats().getCounter());
         }

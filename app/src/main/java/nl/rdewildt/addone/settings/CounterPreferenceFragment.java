@@ -6,6 +6,8 @@ import android.preference.PreferenceFragment;
 import android.view.MenuItem;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import nl.rdewildt.addone.R;
 import nl.rdewildt.addone.Stats;
@@ -23,10 +25,16 @@ public class CounterPreferenceFragment extends PreferenceFragment {
 
         findPreference("counter").setOnPreferenceChangeListener((pref, o) -> {
             File statsFile = new File(getContext().getFilesDir(), "stats.json");
-            Stats stats = Stats.readStats(statsFile);
-            stats.setCounter(Integer.parseInt(o.toString()));
-            Stats.writeStats(stats, statsFile);
-            return true;
+            Stats stats = null;
+            try {
+                stats = Stats.readStats(statsFile);
+                stats.setCounter(Integer.parseInt(o.toString()));
+                Stats.writeStats(stats, statsFile);
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return false;
         });
     }
 }
