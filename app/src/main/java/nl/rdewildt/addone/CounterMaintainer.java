@@ -29,16 +29,16 @@ public class CounterMaintainer {
         this.counterUpdater = new WeeklyCounterUpdater();
     }
 
-    public void increaseCounter(Integer i) throws IOException {
+    public void increaseCounter() throws IOException {
         Counter counter = getCounter();
-        counterUpdater.increaseCounter(counter, i);
+        counterUpdater.increaseCounter(counter, counter.getIncreaseRate());
         Counter.writeCounter(counter, counterFile);
         triggerCounterListener();
     }
 
     public void decreaseCounter() throws IOException {
         Counter counter = getCounter();
-        counterUpdater.decreaseCounter(counter, 1);
+        counterUpdater.decreaseCounter(counter, counter.getDecreaseRate());
         Counter.writeCounter(counter, counterFile);
         triggerCounterListener();
     }

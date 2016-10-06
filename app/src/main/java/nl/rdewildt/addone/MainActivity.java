@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         // On + button click
         fab.setOnClickListener(view -> {
             try {
-                counterMaintainer.increaseCounter(1);
+                counterMaintainer.increaseCounter();
             } catch (IOException e) {
                 e.printStackTrace();
             }

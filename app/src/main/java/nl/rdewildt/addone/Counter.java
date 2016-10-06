@@ -30,14 +30,32 @@ public class Counter {
     private Integer counter;
     private DateTime lastUpdated;
 
+    private Integer increaseRate;
+    private Integer decreaseRate;
+
+    private List<Bonus> bonuses;
+    private List<Goal> goals;
+
     public Counter() {
         this.counter = 0;
         this.lastUpdated = new DateTime().minusWeeks(1);
+
+        this.increaseRate = 1;
+        this.decreaseRate = 1;
+
+        this.bonuses = new ArrayList<>();
+        this.goals = new ArrayList<>();
     }
 
-    public Counter(Integer counter){
+    public Counter(Integer counter, DateTime lastUpdated, Integer increaseRate, Integer decreaseRate) {
         this.counter = counter;
-        this.lastUpdated = new DateTime();
+        this.lastUpdated = lastUpdated;
+
+        this.increaseRate = increaseRate;
+        this.decreaseRate = decreaseRate;
+
+        this.bonuses = new ArrayList<>();
+        this.goals = new ArrayList<>();
     }
 
     public Integer getCounter() {
@@ -54,6 +72,58 @@ public class Counter {
 
     public void setLastUpdated(DateTime lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public Integer getIncreaseRate() {
+        return increaseRate;
+    }
+
+    public void setIncreaseRate(Integer increaseRate) {
+        this.increaseRate = increaseRate;
+    }
+
+    public Integer getDecreaseRate() {
+        return decreaseRate;
+    }
+
+    public void setDecreaseRate(Integer decreaseRate) {
+        this.decreaseRate = decreaseRate;
+    }
+
+    public List<Bonus> getBonuses() {
+        return bonuses;
+    }
+
+    public void setBonuses(List<Bonus> bonuses) {
+        this.bonuses = bonuses;
+    }
+
+    public void addBonus(Bonus bonus){
+        this.bonuses.add(bonus);
+    }
+
+    public void removeBonus(Bonus bonus){
+        if(this.bonuses.contains(bonus)) {
+            this.bonuses.remove(bonus);
+        }
+    }
+
+    public List<Goal> getGoals() {
+        return goals;
+    }
+
+    public void addGoal(Goal goal){
+        this.goals.add(goal);
+    }
+
+    public void removeGoal(Goal goal){
+        if(this.goals.contains(goal)) {
+            this.goals.remove(goal);
+        }
+    }
+
+    public void setGoals(List<Goal> goals) {
+        this.goals = goals;
     }
 
     @Override

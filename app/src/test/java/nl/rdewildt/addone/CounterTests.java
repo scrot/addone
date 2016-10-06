@@ -63,7 +63,7 @@ public class CounterTests {
                 .thenReturn(new FileOutputStream(temp));
 
         CounterMaintainer counterMaintainer = new CounterMaintainer(temp);
-        counterMaintainer.increaseCounter(10);
+        counterMaintainer.getCounter().setCounter(10);
         Counter.writeCounter(counterMaintainer.getCounter(), temp);
 
         CounterMaintainer counterMaintainerFromFile = new CounterMaintainer(temp);
