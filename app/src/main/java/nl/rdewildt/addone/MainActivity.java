@@ -15,14 +15,13 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import nl.rdewildt.addone.settings.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity {
     private GoogleApiClient client;
-    private StatsMaintainer statsMaintainer;
+    private CounterMaintainer counterMaintainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +33,12 @@ public class MainActivity extends AppCompatActivity {
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
-        File statsFile = new File(getApplicationContext().getFilesDir(), "stats.json");
-        this.statsMaintainer = new StatsMaintainer(statsFile);
+        File statsFile = new File(getApplicationContext().getFilesDir(), "counter.json");
+        this.counterMaintainer = new CounterMaintainer(statsFile);
 
         // Init update counter
         try {
-            statsMaintainer.decreaseCounter();
+            counterMaintainer.decreaseCounter();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -47,14 +46,14 @@ public class MainActivity extends AppCompatActivity {
         // Init counter
         TextView counter = (TextView) findViewById(R.id.counter);
         try {
-            counter.setText(String.valueOf(statsMaintainer.getStats().getCounter()));
+            counter.setText(String.valueOf(counterMaintainer.getCounter().getCounter()));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
 
         // On stats changed
-        statsMaintainer.setCounterListener((Integer c) -> {
+        counterMaintainer.setCounterListener((Integer c) -> {
             System.out.println(c);
             counter.setText(String.valueOf(c));
         });
@@ -62,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         // On + button click
         fab.setOnClickListener(view -> {
             try {
-                statsMaintainer.increaseCounter(1);
+                counterMaintainer.increaseCounter(1);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -90,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(id.equals(R.id.action_reset)){
             try {
-                statsMaintainer.resetStats();
+                counterMaintainer.resetCounter();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -143,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         try {
-            statsMaintainer.triggerCounterListener();
+            counterMaintainer.triggerCounterListener();
         } catch (IOException e) {
             e.printStackTrace();
         }

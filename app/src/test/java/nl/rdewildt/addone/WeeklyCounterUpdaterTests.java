@@ -15,45 +15,45 @@ import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 public class WeeklyCounterUpdaterTests {
     @Test
     public void counterIncrease(){
-        Stats stats = new Stats();
+        Counter counter = new Counter();
         CounterUpdater updater = new WeeklyCounterUpdater();
-        assertThat(stats.getCounter(), is(0));
+        assertThat(counter.getCounter(), is(0));
 
         // Increase counter by one
-        updater.increaseCounter(stats, 1);
-        assertThat(stats.getCounter(), is(1));
-        assertThat(stats.getLastUpdated().getWeekOfWeekyear(), is(new DateTime().getWeekOfWeekyear()));
+        updater.increaseCounter(counter, 1);
+        assertThat(counter.getCounter(), is(1));
+        assertThat(counter.getLastUpdated().getWeekOfWeekyear(), is(new DateTime().getWeekOfWeekyear()));
 
         //Only once per week update allowed
-        updater.increaseCounter(stats, 1);
-        assertThat(stats.getCounter(), is(1));
+        updater.increaseCounter(counter, 1);
+        assertThat(counter.getCounter(), is(1));
     }
 
     @Test
     public void counterDecrease(){
-        Stats stats = new Stats();
+        Counter counter = new Counter();
         DateTime lastUpdate = new DateTime().minusWeeks(3);
 
-        stats.setCounter(3);
-        stats.setLastUpdated(lastUpdate);
+        counter.setCounter(3);
+        counter.setLastUpdated(lastUpdate);
 
         CounterUpdater updater = new WeeklyCounterUpdater();
-        assertThat(stats.getCounter(), is(3));
+        assertThat(counter.getCounter(), is(3));
 
         //Penalty for each week not updated
-        updater.decreaseCounter(stats, 1);
-        assertThat(stats.getCounter(), is(0));
-        assertThat(stats.getLastUpdated().getWeekOfWeekyear(), is(new DateTime().getWeekOfWeekyear()));
+        updater.decreaseCounter(counter, 1);
+        assertThat(counter.getCounter(), is(0));
+        assertThat(counter.getLastUpdated().getWeekOfWeekyear(), is(new DateTime().getWeekOfWeekyear()));
 
         //No penalty when updated the same week
-        updater.decreaseCounter(stats, 1);
-        assertThat(stats.getCounter(), is(0));
+        updater.decreaseCounter(counter, 1);
+        assertThat(counter.getCounter(), is(0));
 
         //Score cannot go lower than 0
-        stats.setLastUpdated(lastUpdate);
-        assertThat(stats.getCounter(), is(0));
-        updater.decreaseCounter(stats, 1);
-        assertThat(stats.getCounter(), is(0));
+        counter.setLastUpdated(lastUpdate);
+        assertThat(counter.getCounter(), is(0));
+        updater.decreaseCounter(counter, 1);
+        assertThat(counter.getCounter(), is(0));
 
     }
 }

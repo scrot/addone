@@ -1,16 +1,13 @@
 package nl.rdewildt.addone.settings;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import android.view.MenuItem;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import nl.rdewildt.addone.R;
-import nl.rdewildt.addone.Stats;
+import nl.rdewildt.addone.Counter;
 
 /**
  * Created by roydewildt on 03/10/2016.
@@ -24,12 +21,12 @@ public class CounterPreferenceFragment extends PreferenceFragment {
         setHasOptionsMenu(true);
 
         findPreference("counter").setOnPreferenceChangeListener((pref, o) -> {
-            File statsFile = new File(getContext().getFilesDir(), "stats.json");
-            Stats stats = null;
+            File counterFile = new File(getContext().getFilesDir(), "counter.json");
+            Counter counter = null;
             try {
-                stats = Stats.readStats(statsFile);
-                stats.setCounter(Integer.parseInt(o.toString()));
-                Stats.writeStats(stats, statsFile);
+                counter = Counter.readCounter(counterFile);
+                counter.setCounter(Integer.parseInt(o.toString()));
+                Counter.writeCounter(counter, counterFile);
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();

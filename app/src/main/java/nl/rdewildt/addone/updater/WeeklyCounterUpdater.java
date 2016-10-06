@@ -2,7 +2,7 @@ package nl.rdewildt.addone.updater;
 
 import org.joda.time.DateTime;
 
-import nl.rdewildt.addone.Stats;
+import nl.rdewildt.addone.Counter;
 
 /**
  * Created by roydewildt on 29/08/16.
@@ -10,25 +10,25 @@ import nl.rdewildt.addone.Stats;
 public class WeeklyCounterUpdater implements CounterUpdater {
 
     @Override
-    public void increaseCounter(Stats stats, Integer i) {
-        if(weeksSinceLastUpdate(stats) > 0){
-            stats.setCounter(stats.getCounter() + i);
-            stats.setLastUpdated(new DateTime());
+    public void increaseCounter(Counter counter, Integer i) {
+        if(weeksSinceLastUpdate(counter) > 0){
+            counter.setCounter(counter.getCounter() + i);
+            counter.setLastUpdated(new DateTime());
         }
     }
 
     @Override
-    public void decreaseCounter(Stats stats, Integer i) {
-        Integer weekdiff = weeksSinceLastUpdate(stats);
-        if(weekdiff > 0 && stats.getCounter() > 0){
-            stats.setCounter(stats.getCounter() - (i * weekdiff));
-            stats.setLastUpdated(new DateTime());
+    public void decreaseCounter(Counter counter, Integer i) {
+        Integer weekdiff = weeksSinceLastUpdate(counter);
+        if(weekdiff > 0 && counter.getCounter() > 0){
+            counter.setCounter(counter.getCounter() - (i * weekdiff));
+            counter.setLastUpdated(new DateTime());
         }
     }
 
-    private Integer weeksSinceLastUpdate(Stats stats){
+    private Integer weeksSinceLastUpdate(Counter counter){
         Integer thisWeek = new DateTime().getWeekOfWeekyear();
-        Integer lastWeek = stats.getLastUpdated().getWeekOfWeekyear();
+        Integer lastWeek = counter.getLastUpdated().getWeekOfWeekyear();
         return thisWeek - lastWeek;
     }
 

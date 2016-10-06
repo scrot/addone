@@ -1,7 +1,6 @@
 package nl.rdewildt.addone;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import nl.rdewildt.addone.updater.CounterUpdater;
@@ -11,17 +10,17 @@ import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 /**
  * Created by roydewildt on 28/08/16.
  */
-public class StatsMaintainer {
-    private File statsFile;
+public class CounterMaintainer {
+    private File counterFile;
     private CounterUpdater counterUpdater;
     private CounterListener counterListener;
 
-    public StatsMaintainer(File statsFile){
-        this.statsFile = statsFile;
+    public CounterMaintainer(File counterFile){
+        this.counterFile = counterFile;
 
         try {
-            if(!Stats.IsValidStatsFile(statsFile)){
-                Stats.writeStats(new Stats(), statsFile);
+            if(!Counter.IsValidCounterFile(counterFile)){
+                Counter.writeCounter(new Counter(), counterFile);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -31,26 +30,26 @@ public class StatsMaintainer {
     }
 
     public void increaseCounter(Integer i) throws IOException {
-        Stats stats = getStats();
-        counterUpdater.increaseCounter(stats, i);
-        Stats.writeStats(stats, statsFile);
+        Counter counter = getCounter();
+        counterUpdater.increaseCounter(counter, i);
+        Counter.writeCounter(counter, counterFile);
         triggerCounterListener();
     }
 
     public void decreaseCounter() throws IOException {
-        Stats stats = getStats();
-        counterUpdater.decreaseCounter(stats, 1);
-        Stats.writeStats(stats, statsFile);
+        Counter counter = getCounter();
+        counterUpdater.decreaseCounter(counter, 1);
+        Counter.writeCounter(counter, counterFile);
         triggerCounterListener();
     }
 
-    public void resetStats() throws IOException {
-        Stats.writeStats(new Stats(), statsFile);
+    public void resetCounter() throws IOException {
+        Counter.writeCounter(new Counter(), counterFile);
         triggerCounterListener();
     }
 
-    public Stats getStats() throws IOException {
-        return Stats.readStats(statsFile);
+    public Counter getCounter() throws IOException {
+        return Counter.readCounter(counterFile);
     }
 
     public void setCounterListener(CounterListener f){
@@ -59,7 +58,7 @@ public class StatsMaintainer {
 
     public void triggerCounterListener() throws IOException {
         if(counterListener != null) {
-            counterListener.onChanged(getStats().getCounter());
+            counterListener.onChanged(getCounter().getCounter());
         }
     }
 }
