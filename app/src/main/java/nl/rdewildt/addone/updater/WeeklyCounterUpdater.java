@@ -12,7 +12,7 @@ public class WeeklyCounterUpdater implements CounterUpdater {
     @Override
     public void increaseCounter(Counter counter, Integer i) {
         if(weeksSinceLastUpdate(counter) > 0){
-            counter.setCounter(counter.getCounter() + i);
+            counter.setValue(counter.getValue() + i);
             counter.setLastUpdated(new DateTime());
         }
     }
@@ -20,10 +20,15 @@ public class WeeklyCounterUpdater implements CounterUpdater {
     @Override
     public void decreaseCounter(Counter counter, Integer i) {
         Integer weekdiff = weeksSinceLastUpdate(counter);
-        if(weekdiff > 0 && counter.getCounter() > 0){
-            counter.setCounter(counter.getCounter() - (i * weekdiff));
-            counter.setLastUpdated(new DateTime());
+        if(weekdiff > 0 && counter.getValue() > 0){
+            counter.setValue(counter.getValue() - (i * weekdiff));
+            counter.setLastUpdated(new DateTime().minusWeeks(1));
         }
+    }
+
+    @Override
+    public Boolean isNewCycle(Counter counter) {
+        return weeksSinceLastUpdate(counter) > 0;
     }
 
     private Integer weeksSinceLastUpdate(Counter counter){

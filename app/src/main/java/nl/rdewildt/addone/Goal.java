@@ -7,12 +7,12 @@ package nl.rdewildt.addone;
 public class Goal {
     private String name;
     private String summary;
-    private Integer pointsNeeded;
+    private Integer requiredPoints;
 
-    public Goal(String name, String summary, Integer pointsNeeded) {
+    public Goal(String name, String summary, Integer requiredPoints) {
         this.name = name;
         this.summary = summary;
-        this.pointsNeeded = pointsNeeded;
+        this.requiredPoints = requiredPoints;
     }
 
     public String getName() {
@@ -31,11 +31,11 @@ public class Goal {
         this.summary = summary;
     }
 
-    public Integer getPointsNeeded() {
-        return pointsNeeded;
+    public Integer getRequiredPoints() {
+        return requiredPoints;
     }
 
-    public void setPointsNeeded(Integer pointsNeeded) {
-        this.pointsNeeded = pointsNeeded;
+    public void setRequiredPoints(Integer requiredPoints) {
+        this.requiredPoints = requiredPoints;
     }
 }

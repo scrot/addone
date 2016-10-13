@@ -9,11 +9,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -32,7 +30,7 @@ public class CounterTests {
     @Test
     public void counterInit() {
         Counter counter = new Counter();
-        assertThat(counter.getCounter(), is(0));
+        assertThat(counter.getValue(), is(0));
         assertThat(counter.getLastUpdated().getWeekOfWeekyear(), is(new DateTime().getWeekOfWeekyear() - 1));
     }
 
@@ -47,7 +45,7 @@ public class CounterTests {
         Counter b1 = new Counter();
         Counter b2 = new Counter();
         b2.setLastUpdated(now);
-        b2.setCounter(1);
+        b2.setValue(1);
 
         assertThat(a1, is(a2));
         assertThat(a2, is(a1));
@@ -63,7 +61,7 @@ public class CounterTests {
                 .thenReturn(new FileOutputStream(temp));
 
         CounterMaintainer counterMaintainer = new CounterMaintainer(temp);
-        counterMaintainer.getCounter().setCounter(10);
+        counterMaintainer.getCounter().setValue(10);
         Counter.writeCounter(counterMaintainer.getCounter(), temp);
 
         CounterMaintainer counterMaintainerFromFile = new CounterMaintainer(temp);

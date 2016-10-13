@@ -6,7 +6,7 @@
         android:fragment="nl.rdewildt.addone.settings.CounterPreferenceFragment"
         android:icon="@drawable/ic_info_black_24dp"
         android:title="Counter Behaviour"
-        android:summary="Change the counter behaviour (e.g. decrease frequention)">
+        android:summary="Change the value behaviour (e.g. decrease frequention)">
     </header>
 
 </preference-headers>

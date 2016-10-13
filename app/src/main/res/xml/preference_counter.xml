@@ -5,7 +5,7 @@
 
     <EditTextPreference
         android:title="@string/pref_counter_value"
-        android:key="counter"
+        android:key="value"
         android:defaultValue="0"
         android:maxLines="1"
         android:selectAllOnFocus="true"

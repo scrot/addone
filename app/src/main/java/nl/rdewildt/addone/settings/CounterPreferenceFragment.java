@@ -25,7 +25,7 @@ public class CounterPreferenceFragment extends PreferenceFragment {
             Counter counter = null;
             try {
                 counter = Counter.readCounter(counterFile);
-                counter.setCounter(Integer.parseInt(o.toString()));
+                counter.setValue(Integer.parseInt(o.toString()));
                 Counter.writeCounter(counter, counterFile);
                 return true;
             } catch (IOException e) {

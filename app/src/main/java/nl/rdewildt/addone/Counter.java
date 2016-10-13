@@ -1,6 +1,5 @@
 package nl.rdewildt.addone;
 
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -12,6 +11,7 @@ import org.joda.time.DateTime;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import java.util.Set;
  * Created by roy on 7/11/16.
  */
 public class Counter {
-    private Integer counter;
+    private Integer value;
     private DateTime lastUpdated;
 
     private Integer increaseRate;
@@ -37,7 +37,7 @@ public class Counter {
     private List<Goal> goals;
 
     public Counter() {
-        this.counter = 0;
+        this.value = 0;
         this.lastUpdated = new DateTime().minusWeeks(1);
 
         this.increaseRate = 1;
@@ -47,8 +47,8 @@ public class Counter {
         this.goals = new ArrayList<>();
     }
 
-    public Counter(Integer counter, DateTime lastUpdated, Integer increaseRate, Integer decreaseRate) {
-        this.counter = counter;
+    public Counter(Integer value, DateTime lastUpdated, Integer increaseRate, Integer decreaseRate) {
+        this.value = value;
         this.lastUpdated = lastUpdated;
 
         this.increaseRate = increaseRate;
@@ -58,12 +58,12 @@ public class Counter {
         this.goals = new ArrayList<>();
     }
 
-    public Integer getCounter() {
-        return counter;
+    public Integer getValue() {
+        return value;
     }
 
-    public void setCounter(Integer counter) {
-        this.counter = counter;
+    public void setValue(Integer value) {
+        this.value = value;
     }
 
     public DateTime getLastUpdated() {
@@ -130,7 +130,7 @@ public class Counter {
     public boolean equals(Object obj) {
         if(obj instanceof Counter){
             Counter counter = (Counter) obj;
-            return this.counter.equals(counter.getCounter())
+            return this.value.equals(counter.getValue())
                     && lastUpdated.toString().equals(counter.getLastUpdated().toString());
         }
         else {
@@ -141,31 +141,34 @@ public class Counter {
     @Override
     public int hashCode() {
         int result = 101;
-        result = result * 31 + counter.hashCode();
+        result = result * 31 + value.hashCode();
         result = result * 31 + getLastUpdated().hashCode();
         return result;
     }
 
 
-    public static Counter readCounter(File counterFile) throws IOException {
-        Counter counter = null;
-        try(BufferedReader fileReader = new BufferedReader(new FileReader(counterFile))) {
+    public static Counter readCounter(File path) throws IOException {
+        File file = getCounterFile(path);
+        Counter counter;
+        try(BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
             counter = getCounterGson().fromJson(fileReader, Counter.class);
         }
         return counter;
     }
 
-    public static void writeCounter(Counter counter, File counterFile) throws IOException {
+    public static void writeCounter(Counter counter, File path) throws IOException {
+        File file = getCounterFile(path);
         String counterJson = getCounterGson().toJson(counter);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(counterFile))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(counterJson);
         }
     }
 
-    public static Boolean IsValidCounterFile(File counterFile) throws IOException {
+    public static Boolean IsValidCounterFile(File path) {
+        File file = getCounterFile(path);
         Collection<String> counterFileKeys = new ArrayList<>();
         Set<Map.Entry<String, JsonElement>> counterFileKeySet;
-        try(BufferedReader fileReader = new BufferedReader(new FileReader(counterFile))) {
+        try(BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
             try (JsonReader jsonReader = new JsonReader(fileReader)) {
                 JsonElement counterJsonElement = new JsonParser().parse(jsonReader);
                 if(counterJsonElement.isJsonNull()){
@@ -177,6 +180,8 @@ public class Counter {
                             .entrySet();
                 }
             }
+        } catch (IOException e) {
+            return false;
         }
 
         for(Map.Entry<String, JsonElement> counterFileKey : counterFileKeySet){
@@ -191,6 +196,10 @@ public class Counter {
         }
 
         return counterKeys.size() == counterFileKeys.size() && counterKeys.containsAll(counterFileKeys);
+    }
+
+    public static File getCounterFile(File path){
+        return new File(path, "counter.json");
     }
 
     private static Gson getCounterGson(){
