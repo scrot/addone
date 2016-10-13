@@ -166,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
             CounterMaintainer counterMaintainer = ((MainActivity) getActivity()).getCounterMaintainer();
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.reminder_newcycle)
+                    .setCancelable(false)
                     .setPositiveButton(R.string.reminder_yes, (dialog, which) -> {
                         try {
                             counterMaintainer.initNewCycle(true);
@@ -179,7 +180,6 @@ public class MainActivity extends AppCompatActivity {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
                     });
             return dialogBuilder.create();
         }
