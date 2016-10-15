@@ -11,7 +11,7 @@ public class WeeklyCounterUpdater implements CounterUpdater {
 
     @Override
     public void increaseCounter(Counter counter, Integer i) {
-        if(weeksSinceLastUpdate(counter) > 0){
+        if(cyclesSinceLastUpdate(counter) > 0){
             counter.setValue(counter.getValue() + i);
             counter.setLastUpdated(new DateTime());
         }
@@ -19,7 +19,7 @@ public class WeeklyCounterUpdater implements CounterUpdater {
 
     @Override
     public void decreaseCounter(Counter counter, Integer i) {
-        Integer weekdiff = weeksSinceLastUpdate(counter);
+        Integer weekdiff = cyclesSinceLastUpdate(counter);
         if(weekdiff > 0 && counter.getValue() > 0){
             counter.setValue(counter.getValue() - (i * weekdiff));
             counter.setLastUpdated(new DateTime().minusWeeks(1));
@@ -28,14 +28,18 @@ public class WeeklyCounterUpdater implements CounterUpdater {
 
     @Override
     public Boolean isNewCycle(Counter counter) {
-        return weeksSinceLastUpdate(counter) > 0;
+        return cyclesSinceLastUpdate(counter) > 0;
     }
 
-    private Integer weeksSinceLastUpdate(Counter counter){
+    @Override
+    public Boolean noUpdateLastCycle(Counter counter) {
+        return cyclesSinceLastUpdate(counter) > 1;
+    }
+
+    private Integer cyclesSinceLastUpdate(Counter counter){
         Integer thisWeek = new DateTime().getWeekOfWeekyear();
         Integer lastWeek = counter.getLastUpdated().getWeekOfWeekyear();
         return thisWeek - lastWeek;
     }
-
 
 }

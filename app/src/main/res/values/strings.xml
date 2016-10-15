@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">AddOne</string>
 
-    <string name="reminder_newcycle">New cycle, forgot to add one yesterday?</string>
+    <string name="reminder_newcycle">Forgot to add one previous cycle?</string>
     <string name="reminder_yes">Yes</string>
     <string name="reminder_no">Dismiss</string>
 

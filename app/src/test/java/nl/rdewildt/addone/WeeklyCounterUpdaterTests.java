@@ -3,6 +3,9 @@ package nl.rdewildt.addone;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -43,7 +46,7 @@ public class WeeklyCounterUpdaterTests {
         //Penalty for each week not updated
         updater.decreaseCounter(counter, 1);
         assertThat(counter.getValue(), is(0));
-        assertThat(counter.getLastUpdated().getWeekOfWeekyear(), is(new DateTime().getWeekOfWeekyear()));
+        assertThat(counter.getLastUpdated().getWeekOfWeekyear(), is(new DateTime().getWeekOfWeekyear() - 1));
 
         //No penalty when updated the same week
         updater.decreaseCounter(counter, 1);
@@ -55,5 +58,55 @@ public class WeeklyCounterUpdaterTests {
         updater.decreaseCounter(counter, 1);
         assertThat(counter.getValue(), is(0));
 
+    }
+
+    @Test
+    public void updatedLastCycleCheck() throws IOException {
+        WeeklyCounterUpdater updater = new WeeklyCounterUpdater();
+
+        Counter counter = new Counter();
+        DateTime lastUpdate = new DateTime().minusWeeks(2);
+        counter.setLastUpdated(lastUpdate);
+        assertThat(updater.noUpdateLastCycle(counter), is(true));
+
+        counter = new Counter();
+        lastUpdate = new DateTime().minusWeeks(1);
+        counter.setLastUpdated(lastUpdate);
+        assertThat(updater.noUpdateLastCycle(counter), is(false));
+
+        counter = new Counter();
+        lastUpdate = new DateTime().minusWeeks(0);
+        counter.setLastUpdated(lastUpdate);
+        assertThat(updater.noUpdateLastCycle(counter), is(false));
+
+        counter = new Counter();
+        lastUpdate = new DateTime().plusWeeks(2);
+        counter.setLastUpdated(lastUpdate);
+        assertThat(updater.noUpdateLastCycle(counter), is(false));
+    }
+
+    @Test
+    public void isNewCycleCheck() throws IOException {
+        WeeklyCounterUpdater updater = new WeeklyCounterUpdater();
+
+        Counter counter = new Counter();
+        DateTime lastUpdate = new DateTime().minusWeeks(2);
+        counter.setLastUpdated(lastUpdate);
+        assertThat(updater.isNewCycle(counter), is(true));
+
+        counter = new Counter();
+        lastUpdate = new DateTime().minusWeeks(1);
+        counter.setLastUpdated(lastUpdate);
+        assertThat(updater.isNewCycle(counter), is(true));
+
+        counter = new Counter();
+        lastUpdate = new DateTime().minusWeeks(0);
+        counter.setLastUpdated(lastUpdate);
+        assertThat(updater.isNewCycle(counter), is(false));
+
+        counter = new Counter();
+        lastUpdate = new DateTime().plusWeeks(1);
+        counter.setLastUpdated(lastUpdate);
+        assertThat(updater.isNewCycle(counter), is(false));
     }
 }

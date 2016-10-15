@@ -59,17 +59,27 @@ public class CounterMaintainer {
 
     public void initNewCycle(Boolean lastCycleForgotten) throws IOException {
         decreaseCounter();
+
+        Counter counter = getCounter();
         if(lastCycleForgotten) {
             increaseCounter();
-            Counter counter = getCounter();
             counter.setLastUpdated(new DateTime().minusWeeks(1));
-            Counter.writeCounter(counter, counterPath);
         }
+        Counter.writeCounter(counter, counterPath);
     }
 
     public Boolean isNewCycle() {
         try {
             return counterUpdater.isNewCycle(getCounter());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Boolean noUpdateLastCycle(){
+        try {
+            return counterUpdater.noUpdateLastCycle(getCounter());
         } catch (IOException e) {
             e.printStackTrace();
             return false;

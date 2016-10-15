@@ -9,4 +9,5 @@ public interface CounterUpdater {
     void increaseCounter(Counter counter, Integer i);
     void decreaseCounter(Counter counter, Integer i);
     Boolean isNewCycle(Counter counter);
+    Boolean noUpdateLastCycle(Counter counter);
 }

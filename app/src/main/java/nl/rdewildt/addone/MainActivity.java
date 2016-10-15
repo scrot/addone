@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Open Reminder dialog
-        if(counterMaintainer.isNewCycle()){
+        if(counterMaintainer.isNewCycle() && counterMaintainer.noUpdateLastCycle()){
             new ReminderDialogFragment().show(getSupportFragmentManager(), "reminder_dialog");
         }
 
