@@ -3,14 +3,13 @@ package nl.rdewildt.addone;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 
 import nl.rdewildt.addone.updater.CounterUpdater;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * Created by roydewildt on 16/09/16.

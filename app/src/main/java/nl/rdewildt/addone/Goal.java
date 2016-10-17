@@ -9,6 +9,12 @@ public class Goal {
     private String summary;
     private Integer requiredPoints;
 
+    public Goal(){
+        this.name = "";
+        this.summary = "";
+        this.requiredPoints = 0;
+    }
+
     public Goal(String name, String summary, Integer requiredPoints) {
         this.name = name;
         this.summary = summary;

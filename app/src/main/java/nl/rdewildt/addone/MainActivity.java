@@ -1,32 +1,29 @@
 package nl.rdewildt.addone;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import org.joda.time.DateTime;
-
 import java.io.File;
-import java.io.IOException;
+import java.util.List;
 
 import nl.rdewildt.addone.settings.SettingsActivity;
+import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
 public class MainActivity extends AppCompatActivity {
     private GoogleApiClient client;
@@ -43,34 +40,41 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         // Init counter maintainer
-        File statsFile = getApplicationContext().getFilesDir();
-        this.counterMaintainer = new CounterMaintainer(statsFile);
+        File statsFile = new File(getApplicationContext().getFilesDir(), "counter.json");
+        this.counterMaintainer = new CounterMaintainer(statsFile, new WeeklyCounterUpdater());
 
         // Init counter
         TextView counter = (TextView) findViewById(R.id.value);
-        try {
-            counter.setText(String.valueOf(counterMaintainer.getCounter().getValue()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        counter.setText(String.valueOf(counterMaintainer.getCounter().getValue()));
 
-        // On stats changed
-        counterMaintainer.setCounterListener((Integer c) -> {
-            System.out.println(c);
-            counter.setText(String.valueOf(c));
+        // Init goals
+        GoalsAdapter adapter = new GoalsAdapter(getApplicationContext(), counterMaintainer.getGoals());
+        ListView goalsView = (ListView) findViewById(R.id.goals);
+        goalsView.setAdapter(adapter);
+        counterMaintainer.addGoal(new Goal("Goal 1", "Summary of the goal", 100));
+
+
+        // On counter attributes changed
+        counterMaintainer.setCounterChangedListeners(new CounterAdapter() {
+            @Override
+            public void onValueChanged(Integer value) {
+                counter.setText(String.valueOf(value));
+            }
+
+            @Override
+            public void onGoalsChanged(List<Goal> goals) {
+                GoalsAdapter adapter = new GoalsAdapter(getApplicationContext(), counterMaintainer.getGoals());
+                goalsView.setAdapter(adapter);
+            }
         });
 
         // On + button click
         fab.setOnClickListener(view -> {
-            try {
-                counterMaintainer.increaseCounter();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            counterMaintainer.increaseCounter();
         });
 
         // Open Reminder dialog
-        if(counterMaintainer.isNewCycle() && counterMaintainer.noUpdateLastCycle()){
+        if(counterMaintainer.noUpdateLastCycle()){
             new ReminderDialogFragment().show(getSupportFragmentManager(), "reminder_dialog");
         }
 
@@ -95,11 +99,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         else if(id.equals(R.id.action_reset)){
-            try {
-                counterMaintainer.resetCounter();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            counterMaintainer.resetCounter();
         }
 
         return super.onOptionsItemSelected(item);
@@ -148,11 +148,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            counterMaintainer.triggerCounterListener();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        counterMaintainer.triggerValueChangedListeners();
     }
 
     public CounterMaintainer getCounterMaintainer() {
@@ -168,18 +164,10 @@ public class MainActivity extends AppCompatActivity {
                     .setMessage(R.string.reminder_newcycle)
                     .setCancelable(false)
                     .setPositiveButton(R.string.reminder_yes, (dialog, which) -> {
-                        try {
-                            counterMaintainer.initNewCycle(true);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        counterMaintainer.initNewCycle(true);
                     })
                     .setNegativeButton(R.string.reminder_no, (dialog, which) -> {
-                        try {
-                            counterMaintainer.initNewCycle(false);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        counterMaintainer.initNewCycle(false);
                     });
             return dialogBuilder.create();
         }

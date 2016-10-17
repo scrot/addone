@@ -4,14 +4,14 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.view.MenuItem;
 
-import org.joda.time.DateTime;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import nl.rdewildt.addone.Counter;
+import nl.rdewildt.addone.CounterMaintainer;
 import nl.rdewildt.addone.R;
+import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
@@ -52,16 +52,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             setHasOptionsMenu(true);
 
             findPreference("value").setOnPreferenceChangeListener((pref, o) -> {
-                Counter counter = null;
-                try {
-                    counter = Counter.readCounter(getContext().getFilesDir());
-                    counter.setValue(Integer.parseInt(o.toString()));
-                    Counter.writeCounter(counter, getContext().getFilesDir());
-                    return true;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return false;
+                CounterMaintainer counterMaintainer = new CounterMaintainer(new File(getContext().getFilesDir(), "counter.json"), new WeeklyCounterUpdater());
+                counterMaintainer.getCounter().setValue(Integer.parseInt(o.toString()));
+                return true;
             });
         }
     }

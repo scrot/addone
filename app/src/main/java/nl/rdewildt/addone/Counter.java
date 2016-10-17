@@ -1,27 +1,9 @@
 package nl.rdewildt.addone;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
-
 import org.joda.time.DateTime;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by roy on 7/11/16.
@@ -56,6 +38,13 @@ public class Counter {
 
         this.bonuses = new ArrayList<>();
         this.goals = new ArrayList<>();
+    }
+
+    public void reset(){
+        this.value = 0;
+        this.lastUpdated = new DateTime().minusWeeks(1);
+        this.bonuses.clear();
+        this.goals.clear();
     }
 
     public Integer getValue() {
@@ -112,16 +101,6 @@ public class Counter {
         return goals;
     }
 
-    public void addGoal(Goal goal){
-        this.goals.add(goal);
-    }
-
-    public void removeGoal(Goal goal){
-        if(this.goals.contains(goal)) {
-            this.goals.remove(goal);
-        }
-    }
-
     public void setGoals(List<Goal> goals) {
         this.goals = goals;
     }
@@ -144,65 +123,5 @@ public class Counter {
         result = result * 31 + value.hashCode();
         result = result * 31 + getLastUpdated().hashCode();
         return result;
-    }
-
-
-    public static Counter readCounter(File path) throws IOException {
-        File file = getCounterFile(path);
-        Counter counter;
-        try(BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
-            counter = getCounterGson().fromJson(fileReader, Counter.class);
-        }
-        return counter;
-    }
-
-    public static void writeCounter(Counter counter, File path) throws IOException {
-        File file = getCounterFile(path);
-        String counterJson = getCounterGson().toJson(counter);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write(counterJson);
-        }
-    }
-
-    public static Boolean IsValidCounterFile(File path) {
-        File file = getCounterFile(path);
-        Collection<String> counterFileKeys = new ArrayList<>();
-        Set<Map.Entry<String, JsonElement>> counterFileKeySet;
-        try(BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
-            try (JsonReader jsonReader = new JsonReader(fileReader)) {
-                JsonElement counterJsonElement = new JsonParser().parse(jsonReader);
-                if(counterJsonElement.isJsonNull()){
-                    return false;
-                }
-                else {
-                    counterFileKeySet = counterJsonElement
-                            .getAsJsonObject()
-                            .entrySet();
-                }
-            }
-        } catch (IOException e) {
-            return false;
-        }
-
-        for(Map.Entry<String, JsonElement> counterFileKey : counterFileKeySet){
-            counterFileKeys.add(counterFileKey.getKey());
-        }
-
-        Collection<String> counterKeys = new ArrayList<>();
-        List<Field> counterKeysSet = Arrays.asList(Counter.class.getDeclaredFields());
-
-        for(Field field : counterKeysSet){
-            counterKeys.add(field.getName());
-        }
-
-        return counterKeys.size() == counterFileKeys.size() && counterKeys.containsAll(counterFileKeys);
-    }
-
-    public static File getCounterFile(File path){
-        return new File(path, "counter.json");
-    }
-
-    private static Gson getCounterGson(){
-        return new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
     }
 }
