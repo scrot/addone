@@ -1,11 +1,9 @@
 package nl.rdewildt.addone;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.util.List;
@@ -14,33 +12,55 @@ import java.util.List;
  * Created by roydewildt on 17/10/2016.
  */
 
-public class GoalsAdapter extends ArrayAdapter<Goal> {
-    public GoalsAdapter(Context context, List<Goal> objects) {
-        super(context, 0, objects);
+public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHolder> {
+    private List<Goal> goals;
+
+    public GoalsAdapter(List<Goal> goals) {
+        this.goals = goals;
     }
 
-    @NonNull
+    public static class GoalViewHolder extends RecyclerView.ViewHolder {
+        private TextView title;
+        private TextView summary;
+        private TextView goal;
+
+        public GoalViewHolder(View v) {
+            super(v);
+            this.title = (TextView) v.findViewById(R.id.goaltitle);
+            this.summary = (TextView) v.findViewById(R.id.goalsummary);
+            this.goal = (TextView) v.findViewById(R.id.goalpoints);
+        }
+
+        public TextView getTitle() {
+            return title;
+        }
+
+        public TextView getSummary() {
+            return summary;
+        }
+
+        public TextView getGoal() {
+            return goal;
+        }
+    }
+
+
     @Override
-    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        Goal goal = getItem(position);
-        if(goal == null){
-            goal = new Goal();
-        }
+    public GoalViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.goal_item, parent, false);
+        return new GoalViewHolder(view);
+    }
 
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.goal_item, parent, false);
-        }
+    @Override
+    public void onBindViewHolder(GoalViewHolder holder, int position) {
+        Goal goal = goals.get(position);
+        holder.getTitle().setText(goal.getName());
+        holder.getSummary().setText(goal.getSummary());
+        holder.getGoal().setText(Integer.toString(goal.getRequiredPoints()));
+    }
 
-        TextView title = (TextView) convertView.findViewById(R.id.goaltitle);
-        title.setText(goal.getName());
-
-        TextView summary = (TextView) convertView.findViewById(R.id.goalsummary);
-        summary.setText(goal.getSummary());
-
-        TextView points = (TextView) convertView.findViewById(R.id.goalpoints);
-        points.setText(Integer.toString(goal.getRequiredPoints()));
-
-        return convertView;
-
+    @Override
+    public int getItemCount() {
+        return goals.size();
     }
 }

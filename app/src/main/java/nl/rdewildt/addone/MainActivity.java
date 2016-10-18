@@ -9,6 +9,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,10 +50,12 @@ public class MainActivity extends AppCompatActivity {
         counter.setText(String.valueOf(counterMaintainer.getCounter().getValue()));
 
         // Init goals
-        GoalsAdapter adapter = new GoalsAdapter(getApplicationContext(), counterMaintainer.getGoals());
-        ListView goalsView = (ListView) findViewById(R.id.goals);
+        RecyclerView goalsView = (RecyclerView) findViewById(R.id.goals);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        goalsView.setLayoutManager(linearLayoutManager);
+        GoalsAdapter adapter = new GoalsAdapter(counterMaintainer.getGoals());
         goalsView.setAdapter(adapter);
-        counterMaintainer.addGoal(new Goal("Goal 1", "Summary of the goal", 100));
 
 
         // On counter attributes changed
@@ -63,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onGoalsChanged(List<Goal> goals) {
-                GoalsAdapter adapter = new GoalsAdapter(getApplicationContext(), counterMaintainer.getGoals());
+                GoalsAdapter adapter = new GoalsAdapter(counterMaintainer.getGoals());
                 goalsView.setAdapter(adapter);
             }
         });
