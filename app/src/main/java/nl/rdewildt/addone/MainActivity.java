@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,15 +13,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
+import android.view.View;
 import android.widget.TextView;
 
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
-import java.util.List;
 
 import nl.rdewildt.addone.settings.SettingsActivity;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
@@ -39,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionsMenu fab = (FloatingActionsMenu) findViewById(R.id.fab);
 
         // Init counter maintainer
         File statsFile = new File(getApplicationContext().getFilesDir(), "counter.json");
@@ -57,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         GoalsAdapter adapter = new GoalsAdapter(counterMaintainer.getGoals());
         goalsView.setAdapter(adapter);
 
+        counterMaintainer.addGoal(new Goal("Goal 1", "Summary of the goal", 100));
+
 
         // On counter attributes changed
         counterMaintainer.setCounterChangedListeners(new CounterAdapter() {
@@ -64,18 +65,13 @@ public class MainActivity extends AppCompatActivity {
             public void onValueChanged(Integer value) {
                 counter.setText(String.valueOf(value));
             }
-
-            @Override
-            public void onGoalsChanged(List<Goal> goals) {
-                GoalsAdapter adapter = new GoalsAdapter(counterMaintainer.getGoals());
-                goalsView.setAdapter(adapter);
-            }
         });
 
         // On + button click
-        fab.setOnClickListener(view -> {
-            counterMaintainer.increaseCounter();
-        });
+        //fab.setOnClickListener(view -> {
+        //    counterMaintainer.increaseCounter();
+        //});
+
 
         // Open Reminder dialog
         if(counterMaintainer.noUpdateLastCycle()){

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -53,13 +54,26 @@
             </android.support.v7.widget.RecyclerView>
     </RelativeLayout>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
         android:id="@+id/fab"
-        app:layout_behavior="nl.rdewildt.addone.ScrollAwareFabBehaviour"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_add" />
+        fab:fab_labelStyle="@style/menu_labels_style"
+        fab:fab_addButtonColorNormal="@color/colorAccent"
+        fab:fab_addButtonColorPressed="@color/FabItemClicked"
+        fab:fab_addButtonPlusIconColor="@color/whiteFabSymbol"
+        app:layout_behavior="nl.rdewildt.addone.FloatingActionMenuBehaviour">
+
+    <com.getbase.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        fab:fab_colorNormal="@color/colorAccent"
+        fab:fab_colorPressed="@color/FabItemClicked"
+        fab:fab_size="mini"
+        fab:fab_title="@string/fab_add_goal"
+        fab:fab_icon="@drawable/ic_star"/>
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </android.support.design.widget.CoordinatorLayout>

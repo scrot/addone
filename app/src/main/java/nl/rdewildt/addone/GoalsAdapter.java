@@ -56,11 +56,12 @@ public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHold
         Goal goal = goals.get(position);
         holder.getTitle().setText(goal.getName());
         holder.getSummary().setText(goal.getSummary());
-        holder.getGoal().setText(Integer.toString(goal.getRequiredPoints()));
+        holder.getGoal().setText(goal.getRequiredPoints().toString());
     }
 
     @Override
     public int getItemCount() {
         return goals.size();
     }
+
 }
