@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionsMenu fab = (FloatingActionsMenu) findViewById(R.id.fab);
+        FloatingActionButton fabAddOne = (FloatingActionButton) findViewById(R.id.fab_add_one);
+        FloatingActionButton fabNewGoal = (FloatingActionButton) findViewById(R.id.fab_new_goal);
 
         // Init counter maintainer
         File statsFile = new File(getApplicationContext().getFilesDir(), "counter.json");
@@ -56,9 +59,6 @@ public class MainActivity extends AppCompatActivity {
         GoalsAdapter adapter = new GoalsAdapter(counterMaintainer.getGoals());
         goalsView.setAdapter(adapter);
 
-        counterMaintainer.addGoal(new Goal("Goal 1", "Summary of the goal", 100));
-
-
         // On counter attributes changed
         counterMaintainer.setCounterChangedListeners(new CounterAdapter() {
             @Override
@@ -67,10 +67,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // On + button click
-        //fab.setOnClickListener(view -> {
-        //    counterMaintainer.increaseCounter();
-        //});
+        // On Fab addOne button click
+        fabAddOne.setOnClickListener(view -> {
+            counterMaintainer.increaseCounter();
+        });
+
+        // On Fab newGoal button click
+        fabAddOne.setOnClickListener(view -> {
+            counterMaintainer.addGoal(new Goal("Goal 1", "Summary of the goal", 100));
+        });
 
 
         // Open Reminder dialog

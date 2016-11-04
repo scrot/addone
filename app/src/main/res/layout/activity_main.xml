@@ -66,14 +66,25 @@
         fab:fab_addButtonPlusIconColor="@color/whiteFabSymbol"
         app:layout_behavior="nl.rdewildt.addone.FloatingActionMenuBehaviour">
 
-    <com.getbase.floatingactionbutton.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        fab:fab_colorNormal="@color/colorAccent"
-        fab:fab_colorPressed="@color/FabItemClicked"
-        fab:fab_size="mini"
-        fab:fab_title="@string/fab_add_goal"
-        fab:fab_icon="@drawable/ic_star"/>
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_new_goal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/colorAccent"
+            fab:fab_colorPressed="@color/FabItemClicked"
+            fab:fab_size="mini"
+            fab:fab_title="@string/fab_new_goal"
+            fab:fab_icon="@drawable/ic_star"/>
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_one"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/colorAccent"
+            fab:fab_colorPressed="@color/FabItemClicked"
+            fab:fab_size="mini"
+            fab:fab_title="@string/fab_add_one"
+            fab:fab_icon="@drawable/ic_add"/>
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </android.support.design.widget.CoordinatorLayout>

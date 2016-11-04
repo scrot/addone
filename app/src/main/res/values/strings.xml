@@ -11,7 +11,8 @@
     <string name="goals">Goals</string>
 
     <!-- Strings related to Fab menu -->
-    <string name="fab_add_goal">Add Goal</string>
+    <string name="fab_new_goal">New Goal</string>
+    <string name="fab_add_one">Add One</string>
 
     <!-- Strings related to Settings -->
     <string name="title_activity_settings">Settings</string>
