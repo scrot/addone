@@ -54,7 +54,7 @@
             </android.support.v7.widget.RecyclerView>
     </RelativeLayout>
 
-    <com.getbase.floatingactionbutton.FloatingActionsMenu
+    <nl.rdewildt.addone.fam.FloatingActionsMenu
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -64,9 +64,10 @@
         fab:fab_addButtonColorNormal="@color/colorAccent"
         fab:fab_addButtonColorPressed="@color/FabItemClicked"
         fab:fab_addButtonPlusIconColor="@color/whiteFabSymbol"
+        fab:fab_longPressMenuToggle="true"
         app:layout_behavior="nl.rdewildt.addone.FloatingActionMenuBehaviour">
 
-        <com.getbase.floatingactionbutton.FloatingActionButton
+        <nl.rdewildt.addone.fam.FloatingActionButton
             android:id="@+id/fab_new_goal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -75,16 +76,6 @@
             fab:fab_size="mini"
             fab:fab_title="@string/fab_new_goal"
             fab:fab_icon="@drawable/ic_star"/>
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_add_one"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/FabItemClicked"
-            fab:fab_size="mini"
-            fab:fab_title="@string/fab_add_one"
-            fab:fab_icon="@drawable/ic_add"/>
-    </com.getbase.floatingactionbutton.FloatingActionsMenu>
+    </nl.rdewildt.addone.fam.FloatingActionsMenu>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -1,24 +1,14 @@
 package nl.rdewildt.addone;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
-import android.transition.Fade;
-import android.transition.Scene;
-import android.transition.Slide;
-import android.transition.Transition;
-import android.transition.TransitionManager;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 
-import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import nl.rdewildt.addone.fam.FloatingActionsMenu;
 
 /**
  * Created by roydewildt on 18/10/2016.
@@ -31,6 +21,7 @@ public class FloatingActionMenuBehaviour extends CoordinatorLayout.Behavior<Floa
     public FloatingActionMenuBehaviour(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
+
 
     @Override
     public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionsMenu child, View directTargetChild, View target, int nestedScrollAxes) {

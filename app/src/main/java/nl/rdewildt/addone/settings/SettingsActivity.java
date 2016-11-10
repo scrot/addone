@@ -5,10 +5,8 @@ import android.preference.PreferenceFragment;
 import android.view.MenuItem;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
-import nl.rdewildt.addone.Counter;
 import nl.rdewildt.addone.CounterMaintainer;
 import nl.rdewildt.addone.R;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
@@ -18,7 +16,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }

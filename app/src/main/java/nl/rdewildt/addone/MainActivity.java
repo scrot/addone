@@ -13,17 +13,18 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 
-import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import org.joda.time.DateTime;
+
 import java.io.File;
 
+import nl.rdewildt.addone.fam.FloatingActionButton;
+import nl.rdewildt.addone.fam.FloatingActionsMenu;
 import nl.rdewildt.addone.settings.SettingsActivity;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
@@ -40,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionsMenu fab = (FloatingActionsMenu) findViewById(R.id.fab);
-        FloatingActionButton fabAddOne = (FloatingActionButton) findViewById(R.id.fab_add_one);
         FloatingActionButton fabNewGoal = (FloatingActionButton) findViewById(R.id.fab_new_goal);
 
         // Init counter maintainer
@@ -68,13 +68,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // On Fab addOne button click
-        fabAddOne.setOnClickListener(view -> {
-            counterMaintainer.increaseCounter();
+        fab.setAddFloatingActionButtonListener(new FloatingActionsMenu.AddFloatingActionButtonListener() {
+            @Override
+            public void onClicked() {
+                System.out.println("clicked");
+                counterMaintainer.increaseCounter();
+            }
         });
 
         // On Fab newGoal button click
-        fabAddOne.setOnClickListener(view -> {
-            counterMaintainer.addGoal(new Goal("Goal 1", "Summary of the goal", 100));
+        fabNewGoal.setOnClickListener(view -> {
+            counterMaintainer.addGoal(new Goal("Goal " + DateTime.now().secondOfMinute().toString(), "Summary of the goal", 100));
         });
 
 
