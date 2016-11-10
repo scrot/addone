@@ -35,6 +35,12 @@ public class CounterMaintainer {
 
     private List<CounterListener> counterChangedListeners;
 
+    public interface CounterListener {
+        void onValueChanged(Integer value);
+        void onGoalsChanged(List<Goal> goals);
+    }
+
+
     public CounterMaintainer(File counterPath, CounterUpdater counterUpdater){
         this.counterPath = counterPath;
 

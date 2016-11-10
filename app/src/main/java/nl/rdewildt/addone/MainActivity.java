@@ -13,18 +13,19 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import org.joda.time.DateTime;
-
 import java.io.File;
+import java.util.List;
 
-import nl.rdewildt.addone.fam.FloatingActionButton;
-import nl.rdewildt.addone.fam.FloatingActionsMenu;
+import nl.rdewildt.addone.fam2.MainFloatingActionButton;
 import nl.rdewildt.addone.settings.SettingsActivity;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
@@ -39,9 +40,6 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionsMenu fab = (FloatingActionsMenu) findViewById(R.id.fab);
-        FloatingActionButton fabNewGoal = (FloatingActionButton) findViewById(R.id.fab_new_goal);
 
         // Init counter maintainer
         File statsFile = new File(getApplicationContext().getFilesDir(), "counter.json");
@@ -60,27 +58,24 @@ public class MainActivity extends AppCompatActivity {
         goalsView.setAdapter(adapter);
 
         // On counter attributes changed
-        counterMaintainer.setCounterChangedListeners(new CounterAdapter() {
+        counterMaintainer.setCounterChangedListeners(new CounterMaintainer.CounterListener() {
             @Override
             public void onValueChanged(Integer value) {
                 counter.setText(String.valueOf(value));
             }
-        });
 
-        // On Fab addOne button click
-        fab.setAddFloatingActionButtonListener(new FloatingActionsMenu.AddFloatingActionButtonListener() {
             @Override
-            public void onClicked() {
-                System.out.println("clicked");
-                counterMaintainer.increaseCounter();
+            public void onGoalsChanged(List<Goal> goals) {
+
             }
         });
 
-        // On Fab newGoal button click
-        fabNewGoal.setOnClickListener(view -> {
-            counterMaintainer.addGoal(new Goal("Goal " + DateTime.now().secondOfMinute().toString(), "Summary of the goal", 100));
-        });
-
+        /*MainFloatingActionButton fam = (MainFloatingActionButton) findViewById(R.id.main_fab);
+        fam.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            }
+        });*/
 
         // Open Reminder dialog
         if(counterMaintainer.noUpdateLastCycle()){
