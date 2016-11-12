@@ -53,11 +53,16 @@
             </android.support.v7.widget.RecyclerView>
     </RelativeLayout>
 
-    <nl.rdewildt.addone.fam2.FloatingActionMenu
+    <nl.rdewildt.addone.fam.FloatingActionMenu
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_gravity="bottom|end"
+        android:background="@color/colorPrimaryDark"
         android:layout_margin="@dimen/fab_margin">
-    </nl.rdewildt.addone.fam2.FloatingActionMenu>
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fabSize="mini"/>
+    </nl.rdewildt.addone.fam.FloatingActionMenu>
 
 </android.support.design.widget.CoordinatorLayout>
