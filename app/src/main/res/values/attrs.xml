@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="FloatingActionMenu">
-        <attr name="fab_longPressMenuToggle" format="boolean" />
+        <attr name="longPressMenuToggle" format="boolean" />
+        <attr name="spacing" format="dimension" />
     </declare-styleable>
 </resources>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:addone="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -17,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            addone:popupTheme="@style/AppTheme.PopupOverlay" />
     </android.support.design.widget.AppBarLayout>
 
     <RelativeLayout
@@ -28,7 +29,7 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        addone:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context="nl.rdewildt.addone.MainActivity"
         tools:showIn="@layout/activity_main">
 
@@ -53,16 +54,26 @@
             </android.support.v7.widget.RecyclerView>
     </RelativeLayout>
 
-    <nl.rdewildt.addone.fam.FloatingActionMenu
+    <nl.rdewildt.addone.FloatingActionMenu
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
         android:background="@color/colorPrimaryDark"
-        android:layout_margin="@dimen/fab_margin">
+        addone:longPressMenuToggle="true"
+        addone:spacing="10dp">
         <android.support.design.widget.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:fabSize="mini"/>
-    </nl.rdewildt.addone.fam.FloatingActionMenu>
+            android:src="@drawable/ic_add"
+            addone:fabSize="mini"
+            addone:elevation="0dp" />
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add"
+            addone:fabSize="mini"
+            addone:elevation="0dp"/>
+    </nl.rdewildt.addone.FloatingActionMenu>
 
 </android.support.design.widget.CoordinatorLayout>
