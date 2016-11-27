@@ -1,5 +1,9 @@
 package nl.rdewildt.addone;
 
+import android.animation.Animator;
+import android.animation.LayoutTransition;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.design.widget.CoordinatorLayout;
@@ -9,11 +13,16 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
+
+import java.util.List;
 
 /**
  * Created by roydewildt on 10/11/2016.
@@ -22,7 +31,21 @@ import android.view.animation.TranslateAnimation;
 @CoordinatorLayout.DefaultBehavior(FloatingActionMenu.Behavior.class)
 public class FloatingActionMenu extends ViewGroup {
     private FloatingActionButton mFloatingActionMenu;
-    private boolean mMenuExpanded = false;
+
+    private enum MenuState {
+        COLLAPSED,
+        EXPANDED,
+        HIDDEN
+    }
+    private MenuState menuState = MenuState.COLLAPSED;
+    private MenuState lastMenuState;
+
+    //Animation
+    private Interpolator mInterpolator = new LinearInterpolator();
+    private boolean mFillAfter = true;
+    private int mDuration;
+    private int mFadeDuration = 200;
+
 
     //Menu attributes
     private int mSpacing = 0;
@@ -59,10 +82,11 @@ public class FloatingActionMenu extends ViewGroup {
 
         //Set fam expand/collapse animation
         mFloatingActionMenu.setOnLongClickListener(view -> {
-            if(mMenuExpanded){
-                collapse();
-            } else {
-                expand();
+            if(menuState == MenuState.EXPANDED){
+                collapse(mDuration);
+            }
+            else if (menuState == MenuState.COLLAPSED){
+                expand(mDuration);
             }
             return true;
         });
@@ -70,76 +94,95 @@ public class FloatingActionMenu extends ViewGroup {
         addView(mFloatingActionMenu, super.generateDefaultLayoutParams());
     }
 
-    public void expand(){
-        if(!mMenuExpanded) {
-            mMenuExpanded = true;
+    public void collapse(int duration) {
+        if(menuState == MenuState.EXPANDED) {
+            menuState = MenuState.COLLAPSED;
             requestLayout();
-            /*
-            //Animate menu-button
-            int percentage = (int) (getMeasuredWidth() * .50);
 
-            Animation plusToCross = new RotateAnimation(0, 135, percentage, percentage);
-            plusToCross.setDuration(400);
-            plusToCross.setFillAfter(true);
-            plusToCross.setInterpolator(new OvershootInterpolator());
-            mFloatingActionMenu.startAnimation(plusToCross);
+            //Animate fam
+            Animation animationFam = AnimationUtils.loadAnimation(getContext(), R.anim.menu_collapse);
+            mFloatingActionMenu.startAnimation(animationFam);
 
-            //Animate children
-            final int count = getChildCount();
-            int stackedHeight = getMeasuredHeight() + getChildAt(0).getHeight() + mSpacing;
-
-            for(int i = 1; i < count; i++) {
+            //Animate menu children
+            int stackedHeight = getMeasuredHeight() - mFloatingActionMenu.getMeasuredHeight();
+            for (int i = 0; i < getChildCount(); i++) {
                 final View child = getChildAt(i);
-                int expandedHeight = stackedHeight - (child.getMeasuredHeight() + mSpacing);
 
-                final Animation expandChild = new TranslateAnimation(0, 0, getMeasuredHeight(), expandedHeight);
-                expandChild.setDuration(400);
-                expandChild.setFillAfter(true);
-                expandChild.setInterpolator(new OvershootInterpolator());
-                child.startAnimation(expandChild);
-
-                stackedHeight -= (child.getMeasuredHeight() + mSpacing);
+                if (!child.equals(mFloatingActionMenu)) {
+                    final int childHeight = child.getMeasuredHeight();
+                    final int childTop = stackedHeight - childHeight;
+                    translateY(child, 0, childTop, duration);
+                    stackedHeight += (childHeight + mSpacing);
+                    child.setAlpha(0f);
+                }
             }
-            */
         }
     }
 
-    public void collapse(){
-        if(mMenuExpanded) {
-            mMenuExpanded = false;
+    public void expand(int duration) {
+        if(menuState == MenuState.COLLAPSED) {
+            menuState = MenuState.EXPANDED;
             requestLayout();
 
-            /*
-            //Animate menu-button
-            int percentage = (int) (getMeasuredWidth() * .50);
+            //Animate fam
+            Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.menu_expand);
+            mFloatingActionMenu.startAnimation(animation);
 
-            Animation crossToPlus = new RotateAnimation(135, 0, percentage, percentage);
-            crossToPlus.setDuration(400);
-            crossToPlus.setFillAfter(true);
-            crossToPlus.setInterpolator(new OvershootInterpolator());
-            mFloatingActionMenu.startAnimation(crossToPlus);
 
-            //Animate children
-            final int count = getChildCount();
-            for(int i = 1; i < count; i++) {
+            //Animate menu children
+            int stackedHeight = getMeasuredHeight() - (mFloatingActionMenu.getMeasuredHeight() + mSpacing);
+            for (int i = 0; i < getChildCount(); i++) {
                 final View child = getChildAt(i);
-                int expandedHeight = (child.getMeasuredHeight() + mSpacing) * i;
-                final Animation collapseChild = new TranslateAnimation(0, 0, 0, -expandedHeight);
-                collapseChild.setDuration(400);
-                collapseChild.setFillAfter(true);
-                collapseChild.setInterpolator(new OvershootInterpolator());
-                child.startAnimation(collapseChild);
-            }*/
+
+                if (!child.equals(mFloatingActionMenu)) {
+                    final int childHeight = child.getMeasuredHeight();
+                    final int childTop = stackedHeight - childHeight;
+                    translateY(child, childTop, 0, duration);
+                    stackedHeight += (childHeight + mSpacing);
+                    child.setAlpha(1f);
+                }
+            }
         }
     }
 
-    public void hide(){
-        mFloatingActionMenu.hide();
-        this.collapse();
+    public void fadeIn(){
+        if(menuState == MenuState.HIDDEN) {
+            menuState = lastMenuState;
+
+            for (int i = 0; i < getChildCount(); i++) {
+                final View child = getChildAt(i);
+                translateAlpha(child, 0f, 1f, mFadeDuration);
+                //child.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
-    public void show(){
-        mFloatingActionMenu.show();
+    public void fadeOut(){
+        if(menuState != MenuState.HIDDEN) {
+            lastMenuState = menuState;
+            menuState = MenuState.HIDDEN;
+
+            for (int i = 0; i < getChildCount(); i++) {
+                final View child = getChildAt(i);
+                translateAlpha(child, 1f, 0f, mFadeDuration);
+                //child.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    public void translateAlpha(View child, float fromA, float toA, int duration){
+        final Animation fadeOutAnimation = new AlphaAnimation(fromA, toA);
+        fadeOutAnimation.setDuration(duration);
+        fadeOutAnimation.setFillAfter(mFillAfter);
+        child.startAnimation(fadeOutAnimation);
+    }
+
+    private void translateY(View child, int fromY, int toY, int duration){
+        final TranslateAnimation animationChild = new TranslateAnimation(0, 0, fromY, toY);
+        animationChild.setInterpolator(mInterpolator);
+        animationChild.setFillAfter(mFillAfter);
+        animationChild.setDuration(duration > 0 ? duration : (getChildCount() - 1) * 60);
+        child.startAnimation(animationChild);
     }
 
     @Override
@@ -149,56 +192,37 @@ public class FloatingActionMenu extends ViewGroup {
         int maxWidth = 0;
         int childState = 0;
 
-        if(mMenuExpanded) {
-            for (int i = 0; i < getChildCount(); i++) {
-                final View child = getChildAt(i);
-                final LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+        for (int i = 0; i < getChildCount(); i++) {
+            final View child = getChildAt(i);
+            final LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
 
-                if (child.getVisibility() != View.GONE) {
-                    measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
+            //if (child.getVisibility() != View.GONE) {
+                measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
 
-                    //Calculate child dimensions including the margins of parent
-                    maxWidth = Math.max(maxWidth, child.getMeasuredWidth() + layoutParams.leftMargin + layoutParams.rightMargin);
-                    maxHeight += child.getMeasuredHeight() + layoutParams.topMargin + layoutParams.bottomMargin + mSpacing;
-                    childState = combineMeasuredStates(childState, child.getMeasuredState());
-                }
-            }
-            //Correct for spacing of the FAM, that is none existing
-            maxHeight = Math.max(maxHeight - mSpacing, getSuggestedMinimumHeight());
-            maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
+                //Calculate child dimensions including the margins of parent
+                maxWidth = Math.max(maxWidth, child.getMeasuredWidth() + layoutParams.leftMargin + layoutParams.rightMargin);
+                maxHeight += child.getMeasuredHeight() + layoutParams.topMargin + layoutParams.bottomMargin + mSpacing;
+                childState = combineMeasuredStates(childState, child.getMeasuredState());
+            //}
         }
-        else {
-            measureChildWithMargins(mFloatingActionMenu, widthMeasureSpec, 0, heightMeasureSpec, 0);
-            maxHeight = mFloatingActionMenu.getMeasuredHeight();
-            maxWidth = mFloatingActionMenu.getMeasuredWidth();
-            childState = combineMeasuredStates(childState, mFloatingActionMenu.getMeasuredState());
-        }
+        //Correct for spacing of the FAM, that is none existing
+        maxHeight = Math.max(maxHeight - mSpacing, getSuggestedMinimumHeight());
+        maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 
         setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, childState), resolveSizeAndState(maxHeight, heightMeasureSpec, childState));
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        //Bring menu button to front
-        mFloatingActionMenu.bringToFront();
-
         final int parentWidth = right - left;
         final int parentHeight = bottom - top;
 
-        //Layout FAM
-        final int famWidth = mFloatingActionMenu.getMeasuredWidth();
-        final int famHeight = mFloatingActionMenu.getMeasuredHeight();
+        layoutFAM(parentWidth, parentHeight);
 
-        final int famTop = parentHeight - famHeight;
-        final int famBottom = famTop + famHeight;
-        final int famLeft = (parentWidth - famWidth) / 2;
-        final int famRight = famLeft + famWidth;
-
-        mFloatingActionMenu.layout(famLeft, famTop, famRight, famBottom);
-
-        if(mMenuExpanded) {
+        //Layout children
+        if(menuState == MenuState.EXPANDED) {
             //Total height of already rendered buttons and their spacing
-            int stackedHeight = parentHeight - (famHeight + mSpacing);
+            int stackedHeight = parentHeight - (mFloatingActionMenu.getMeasuredHeight() + mSpacing);
 
             //Layout remaining children
             for (int i = 0; i < getChildCount(); i++) {
@@ -219,6 +243,20 @@ public class FloatingActionMenu extends ViewGroup {
                 }
             }
         }
+    }
+
+    private void layoutFAM(int parentWidth, int parentHeight){
+        //Bring menu button to top of stack
+        mFloatingActionMenu.bringToFront();
+
+        final int famWidth = mFloatingActionMenu.getMeasuredWidth();
+        final int famHeight = mFloatingActionMenu.getMeasuredHeight();
+
+        final int famTop = parentHeight - famHeight;
+        final int famBottom = famTop + famHeight;
+        final int famLeft = (parentWidth - famWidth) / 2;
+        final int famRight = famLeft + famWidth;
+        mFloatingActionMenu.layout(famLeft, famTop, famRight, famBottom);
     }
 
     @Override
@@ -277,9 +315,9 @@ public class FloatingActionMenu extends ViewGroup {
         @Override
         public void onNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionMenu child, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
             if(dyConsumed > 0){
-                child.hide();
+                child.fadeOut();
             } else if (dyConsumed < 0) {
-                child.show();
+                child.fadeIn();
             }
         }
     }
