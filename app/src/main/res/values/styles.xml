@@ -21,10 +21,4 @@
         <item name="android:gravity">center</item>
         <item name="android:layout_marginBottom">10dp</item>
     </style>
-
-    <style name="menu_labels_style">
-        <item name="android:background">@drawable/fab_label_background</item>
-        <item name="android:textColor">@color/whiteFabSymbol</item>
-    </style>
-
 </resources>

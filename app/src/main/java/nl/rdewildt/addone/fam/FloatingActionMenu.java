@@ -1,9 +1,5 @@
-package nl.rdewildt.addone;
+package nl.rdewildt.addone.fam;
 
-import android.animation.Animator;
-import android.animation.LayoutTransition;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.design.widget.CoordinatorLayout;
@@ -18,11 +14,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.OvershootInterpolator;
-import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
 
-import java.util.List;
+import nl.rdewildt.addone.R;
 
 /**
  * Created by roydewildt on 10/11/2016.
@@ -30,7 +24,7 @@ import java.util.List;
 
 @CoordinatorLayout.DefaultBehavior(FloatingActionMenu.Behavior.class)
 public class FloatingActionMenu extends ViewGroup {
-    private FloatingActionButton mFloatingActionMenu;
+    private FloatingActionMenuButton mFloatingActionMenu;
 
     private enum MenuState {
         COLLAPSED,
@@ -78,7 +72,7 @@ public class FloatingActionMenu extends ViewGroup {
 
     private void addMainFloatingActionButton(){
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mFloatingActionMenu = (FloatingActionButton) inflater.inflate(R.layout.main_fab, null);
+        mFloatingActionMenu = new FloatingActionMenuButton(getContext());
 
         //Set fam expand/collapse animation
         mFloatingActionMenu.setOnLongClickListener(view -> {
@@ -113,7 +107,6 @@ public class FloatingActionMenu extends ViewGroup {
                     final int childTop = stackedHeight - childHeight;
                     translateY(child, 0, childTop, duration);
                     stackedHeight += (childHeight + mSpacing);
-                    child.setAlpha(0f);
                 }
             }
         }
@@ -139,7 +132,6 @@ public class FloatingActionMenu extends ViewGroup {
                     final int childTop = stackedHeight - childHeight;
                     translateY(child, childTop, 0, duration);
                     stackedHeight += (childHeight + mSpacing);
-                    child.setAlpha(1f);
                 }
             }
         }

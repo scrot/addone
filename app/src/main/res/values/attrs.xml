@@ -4,4 +4,12 @@
         <attr name="longPressMenuToggle" format="boolean" />
         <attr name="spacing" format="dimension" />
     </declare-styleable>
+    <declare-styleable name="FloatingActionMenuButton">
+        <attr name="size" format="enum">
+            <enum name="SMALL" value="0"/>
+            <enum name="NORMAL" value="1" />
+            <enum name="LARGE" value="2" />
+        </attr>
+        <attr name="iconsrc" format="integer" />
+    </declare-styleable>
 </resources>

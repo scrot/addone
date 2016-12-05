@@ -54,26 +54,23 @@
             </android.support.v7.widget.RecyclerView>
     </RelativeLayout>
 
-    <nl.rdewildt.addone.FloatingActionMenu
+    <nl.rdewildt.addone.fam.FloatingActionMenu
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:background="@color/colorPrimaryDark"
         addone:longPressMenuToggle="true"
         addone:spacing="10dp">
-        <android.support.design.widget.FloatingActionButton
+        <nl.rdewildt.addone.fam.FloatingActionMenuButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_add"
-            addone:fabSize="mini"
-            addone:elevation="0dp" />
-        <android.support.design.widget.FloatingActionButton
+            addone:iconsrc="@drawable/ic_star"
+            addone:size="SMALL" />
+        <nl.rdewildt.addone.fam.FloatingActionMenuButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_add"
-            addone:fabSize="mini"
-            addone:elevation="0dp"/>
-    </nl.rdewildt.addone.FloatingActionMenu>
+            addone:iconsrc="@drawable/ic_star"
+            addone:size="SMALL"/>
+    </nl.rdewildt.addone.fam.FloatingActionMenu>
 
 </android.support.design.widget.CoordinatorLayout>
