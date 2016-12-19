@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="FloatingActionMenu">
-        <attr name="longPressMenuToggle" format="boolean" />
-        <attr name="spacing" format="dimension" />
+        <attr name="fam_long_press" format="boolean" />
+        <attr name="fam_menu_spacing" format="dimension" />
+        <attr name="fam_size" format="dimension" />
+        <attr name="fam_icon_src" format="integer" />
+        <attr name="fam_icon_size" format="dimension" />
     </declare-styleable>
     <declare-styleable name="FloatingActionMenuButton">
-        <attr name="size" format="enum">
-            <enum name="SMALL" value="0"/>
-            <enum name="NORMAL" value="1" />
-            <enum name="LARGE" value="2" />
-        </attr>
-        <attr name="iconsrc" format="integer" />
+        <attr name="famb_size" format="dimension" />
+        <attr name="famb_icon_src" format="integer" />
+        <attr name="famb_icon_size" format="dimension" />
     </declare-styleable>
 </resources>
