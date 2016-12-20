@@ -28,7 +28,11 @@ import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
 public class MainActivity extends AppCompatActivity {
     private GoogleApiClient client;
+
+    private File statspath;
     private StatsController statsController;
+
+    private RecyclerView goalsView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Init counter maintainer
         File statsFile = new File(getApplicationContext().getFilesDir(), "counter.json");
+        this.statspath = statsFile;
         this.statsController = new StatsController(statsFile, new WeeklyCounterUpdater());
 
         // Init counter
@@ -47,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         counter.setText(String.valueOf(statsController.getCounter().getValue()));
 
         // Init goals
-        RecyclerView goalsView = (RecyclerView) findViewById(R.id.goals);
+        goalsView = (RecyclerView) findViewById(R.id.goals);
 
         // Setup goals view layout
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -57,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
         // Bind goals to view
         GoalsAdapter adapter = new GoalsAdapter(statsController.getGoals());
         goalsView.setAdapter(adapter);
+
+        // Set change listeners
         statsController.setGoalsChangedListeners(new StatsController.GoalsListener() {
             @Override
             public void onGoalAdded(Integer position) {
@@ -73,9 +80,8 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
-
-        // On counter value changed
         statsController.setCounterChangedListeners(value -> counter.setText(String.valueOf(value)));
+        statsController.addStatsChangedListener(() -> goalsView.getAdapter().notifyDataSetChanged());
 
         // Open Reminder dialog
         if(statsController.noUpdateLastCycle()){
@@ -86,14 +92,17 @@ public class MainActivity extends AppCompatActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    public void onAddOneButtonClick(View view){
-        statsController.addGoal(new Goal("Goal", "Dit is een test goal", 200));
+    public void addNewGoal(View view){
+        Intent intent = new Intent(this, AddGoalActivity.class);
+        intent.putExtra("STATS_PATH", this.statspath.toString());
+        startActivityForResult(intent, 1);
     }
 
-    public void onAddOneButtonClick2(View view){
-        List<Goal> temp = statsController.getGoals();
-        if(temp.size() > 0) {
-            statsController.removeGoal(temp.get(temp.size() - 1));
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 1){
+            statsController.reloadStats();
         }
     }
 
@@ -114,8 +123,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         else if(id.equals(R.id.action_reset)){
-            statsController.resetCounter();
-            statsController.resetGoals();
+            statsController.resetStats();
         }
 
         return super.onOptionsItemSelected(item);
@@ -164,7 +172,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        statsController.notifyCounterValueChanged();
     }
 
     public StatsController getStatsController() {

@@ -1,4 +1,4 @@
-package nl.rdewildt.addone;
+package nl.rdewildt.addone.helper;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

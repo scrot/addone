@@ -2,7 +2,7 @@ package nl.rdewildt.addone.updater;
 
 import org.joda.time.DateTime;
 
-import nl.rdewildt.addone.Counter;
+import nl.rdewildt.addone.model.Counter;
 
 /**
  * Created by roydewildt on 29/08/16.

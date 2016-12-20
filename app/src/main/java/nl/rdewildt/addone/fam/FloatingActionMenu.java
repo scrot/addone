@@ -15,6 +15,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 
 import nl.rdewildt.addone.R;
+import nl.rdewildt.addone.helper.DpConverter;
 
 /**
  * Created by roydewildt on 10/11/2016.

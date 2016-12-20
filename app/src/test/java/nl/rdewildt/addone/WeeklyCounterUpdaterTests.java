@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import nl.rdewildt.addone.model.Counter;
 import nl.rdewildt.addone.updater.CounterUpdater;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 

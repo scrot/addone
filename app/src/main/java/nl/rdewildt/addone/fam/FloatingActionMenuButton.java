@@ -7,10 +7,10 @@ import android.graphics.drawable.LayerDrawable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.ImageButton;
 
 import nl.rdewildt.addone.R;
+import nl.rdewildt.addone.helper.DpConverter;
 
 /**
  * Created by roydewildt on 05/12/2016.

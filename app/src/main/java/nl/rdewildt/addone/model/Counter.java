@@ -1,9 +1,6 @@
-package nl.rdewildt.addone;
+package nl.rdewildt.addone.model;
 
 import org.joda.time.DateTime;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by roy on 7/11/16.

@@ -1,4 +1,4 @@
-package nl.rdewildt.addone;
+package nl.rdewildt.addone.model;
 
 /**
  * Created by roydewildt on 06/10/2016.

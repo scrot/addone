@@ -9,6 +9,8 @@ import android.widget.TextView;
 import java.util.List;
 import java.util.Locale;
 
+import nl.rdewildt.addone.model.Goal;
+
 /**
  * Created by roydewildt on 17/10/2016.
  */

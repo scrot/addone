@@ -65,14 +65,7 @@
         <nl.rdewildt.addone.fam.FloatingActionMenuButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onAddOneButtonClick"
-            addone:famb_size="40dp"
-            addone:famb_icon_src="@drawable/ic_star"
-            addone:famb_icon_size="24dp"/>
-        <nl.rdewildt.addone.fam.FloatingActionMenuButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onAddOneButtonClick2"
+            android:onClick="addNewGoal"
             addone:famb_size="40dp"
             addone:famb_icon_src="@drawable/ic_star"
             addone:famb_icon_size="24dp"/>

@@ -12,6 +12,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.File;
 import java.io.IOException;
 
+import nl.rdewildt.addone.model.Counter;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;

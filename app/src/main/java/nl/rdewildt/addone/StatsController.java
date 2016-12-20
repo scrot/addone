@@ -1,20 +1,16 @@
 package nl.rdewildt.addone;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import org.joda.time.DateTime;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.rdewildt.addone.model.Counter;
+import nl.rdewildt.addone.model.Goal;
+import nl.rdewildt.addone.model.Stats;
 import nl.rdewildt.addone.updater.CounterUpdater;
+import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
 
 /**
@@ -39,23 +35,19 @@ public class StatsController {
         void onGoalsChanged();
     }
 
+    public StatsController(File statspath){
+        this(statspath, new WeeklyCounterUpdater());
+    }
 
     public StatsController(File statspath, CounterUpdater counterUpdater){
         this.statspath = statspath;
-        setupStats(statspath);
+        stats = new Stats(statspath);
 
         this.counterUpdater = counterUpdater;
 
         counterChangedListeners = new ArrayList<>();
         goalsChangedListeners  = new ArrayList<>();
-    }
-
-    private void setupStats(File statsPath){
-        if(!statsPath.isFile()){
-            stats = new Stats();
-            saveStats();
-        }
-        syncStats();
+        statsChangedListeners = new ArrayList<>();
     }
 
     /*
@@ -64,19 +56,13 @@ public class StatsController {
 
     public void increaseCounter() {
         counterUpdater.increaseCounter(getCounter(), getCounter().getIncreaseRate());
-        saveStats();
+        stats.writeStats();
         notifyCounterValueChanged();
     }
 
     public void decreaseCounter() {
         counterUpdater.decreaseCounter(getCounter(), getCounter().getDecreaseRate());
-        saveStats();
-        notifyCounterValueChanged();
-    }
-
-    public void resetCounter() {
-        getCounter().reset();
-        saveStats();
+        stats.writeStats();
         notifyCounterValueChanged();
     }
 
@@ -103,7 +89,7 @@ public class StatsController {
         getGoals().add(goal);
         int position = getGoals().indexOf(goal);
         notifyGoalAdded(position);
-        saveStats();
+        stats.writeStats();
     }
 
     public void removeGoal(Goal goal) {
@@ -111,14 +97,8 @@ public class StatsController {
             int position = getGoals().indexOf(goal);
             getGoals().remove(position);
             notifyGoalRemoved(position);
-            saveStats();
+            stats.writeStats();
         }
-    }
-
-    public void resetGoals(){
-        getGoals().clear();
-        notifyGoalsChanged();
-
     }
 
     public List<Goal> getGoals() {
@@ -159,7 +139,7 @@ public class StatsController {
             increaseCounter();
             counter.setLastUpdated(new DateTime().minusWeeks(1));
         }
-        saveStats();
+        stats.writeStats();
     }
 
     public Boolean isNewCycle() {
@@ -173,75 +153,28 @@ public class StatsController {
     /*
      *  Stats Actions
      */
-
-    private void resetStats(){
-        stats = new Stats();
+    private List<StatsChangedListener> statsChangedListeners;
+    public interface StatsChangedListener{
+        void onChanged();
     }
 
-    public void syncStats() {
-        stats = readStats(statspath);
+    public void resetStats(){
+        stats.resetStats();
+        notifyStatsChanged();
     }
 
-    public Stats readStats(File path) {
-        Stats out = null;
-        try(BufferedReader fileReader = new BufferedReader(new FileReader(path))) {
-            out = getDateTimeGSON().fromJson(fileReader, Stats.class);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void reloadStats(){
+        stats.syncStats();
+        notifyStatsChanged();
+    }
+
+    public void addStatsChangedListener(StatsChangedListener f){
+        statsChangedListeners.add(f);
+    }
+
+    public void notifyStatsChanged(){
+        for(StatsChangedListener f : statsChangedListeners){
+            f.onChanged();
         }
-        return out;
-    }
-
-    public void writeStats(File path, Stats stats) {
-        String jsonString = getDateTimeGSON().toJson(stats);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
-            writer.write(jsonString);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void saveStats(){
-        writeStats(statspath, stats);
-    }
-
-    /*
-    public Boolean isValidCounterFile(File path) {
-        Collection<String> counterFileKeys = new ArrayList<>();
-        Set<Map.Entry<String, JsonElement>> counterFileKeySet;
-        try(BufferedReader fileReader = new BufferedReader(new FileReader(path))) {
-            try (JsonReader jsonReader = new JsonReader(fileReader)) {
-                JsonElement counterJsonElement = new JsonParser().parse(jsonReader);
-                if(counterJsonElement.isJsonNull()){
-                    return false;
-                }
-                else {
-                    counterFileKeySet = counterJsonElement
-                            .getAsJsonObject()
-                            .entrySet();
-                }
-            }
-        } catch (IOException e) {
-            return false;
-        }
-
-        for(Map.Entry<String, JsonElement> counterFileKey : counterFileKeySet){
-            counterFileKeys.add(counterFileKey.getKey());
-        }
-
-        Collection<String> counterKeys = new ArrayList<>();
-        List<Field> counterKeysSet = Arrays.asList(Counter.class.getDeclaredFields());
-
-        for(Field field : counterKeysSet){
-            counterKeys.add(field.getName());
-        }
-
-        return counterKeys.size() == counterFileKeys.size() && counterKeys.containsAll(counterFileKeys);
-    }
-    */
-
-
-    private Gson getDateTimeGSON(){
-        return new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
     }
 }

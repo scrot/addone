@@ -1,6 +1,6 @@
 package nl.rdewildt.addone.updater;
 
-import nl.rdewildt.addone.Counter;
+import nl.rdewildt.addone.model.Counter;
 
 /**
  * Created by roydewildt on 29/08/16.

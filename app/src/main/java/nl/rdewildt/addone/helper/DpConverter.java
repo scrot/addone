@@ -1,4 +1,4 @@
-package nl.rdewildt.addone.fam;
+package nl.rdewildt.addone.helper;
 
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
