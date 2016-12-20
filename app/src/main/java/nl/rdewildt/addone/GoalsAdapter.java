@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by roydewildt on 17/10/2016.
@@ -56,7 +57,7 @@ public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHold
         Goal goal = goals.get(position);
         holder.getTitle().setText(goal.getName());
         holder.getSummary().setText(goal.getSummary());
-        holder.getGoal().setText(goal.getRequiredPoints().toString());
+        holder.getGoal().setText(String.format(Locale.ENGLISH, "%1$d", goal.getRequiredPoints()));
     }
 
     @Override

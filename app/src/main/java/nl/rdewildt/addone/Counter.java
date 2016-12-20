@@ -15,18 +15,12 @@ public class Counter {
     private Integer increaseRate;
     private Integer decreaseRate;
 
-    private List<Bonus> bonuses;
-    private List<Goal> goals;
-
     public Counter() {
         this.value = 0;
         this.lastUpdated = new DateTime().minusWeeks(1);
 
         this.increaseRate = 1;
         this.decreaseRate = 1;
-
-        this.bonuses = new ArrayList<>();
-        this.goals = new ArrayList<>();
     }
 
     public Counter(Integer value, DateTime lastUpdated, Integer increaseRate, Integer decreaseRate) {
@@ -35,16 +29,11 @@ public class Counter {
 
         this.increaseRate = increaseRate;
         this.decreaseRate = decreaseRate;
-
-        this.bonuses = new ArrayList<>();
-        this.goals = new ArrayList<>();
     }
 
     public void reset(){
         this.value = 0;
         this.lastUpdated = new DateTime().minusWeeks(1);
-        this.bonuses.clear();
-        this.goals.clear();
     }
 
     public Integer getValue() {
@@ -77,32 +66,6 @@ public class Counter {
 
     public void setDecreaseRate(Integer decreaseRate) {
         this.decreaseRate = decreaseRate;
-    }
-
-    public List<Bonus> getBonuses() {
-        return bonuses;
-    }
-
-    public void setBonuses(List<Bonus> bonuses) {
-        this.bonuses = bonuses;
-    }
-
-    public void addBonus(Bonus bonus){
-        this.bonuses.add(bonus);
-    }
-
-    public void removeBonus(Bonus bonus){
-        if(this.bonuses.contains(bonus)) {
-            this.bonuses.remove(bonus);
-        }
-    }
-
-    public List<Goal> getGoals() {
-        return goals;
-    }
-
-    public void setGoals(List<Goal> goals) {
-        this.goals = goals;
     }
 
     @Override

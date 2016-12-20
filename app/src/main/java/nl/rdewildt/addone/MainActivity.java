@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
@@ -27,7 +28,7 @@ import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
 public class MainActivity extends AppCompatActivity {
     private GoogleApiClient client;
-    private CounterMaintainer counterMaintainer;
+    private StatsController statsController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,40 +40,61 @@ public class MainActivity extends AppCompatActivity {
 
         // Init counter maintainer
         File statsFile = new File(getApplicationContext().getFilesDir(), "counter.json");
-        this.counterMaintainer = new CounterMaintainer(statsFile, new WeeklyCounterUpdater());
+        this.statsController = new StatsController(statsFile, new WeeklyCounterUpdater());
 
         // Init counter
         TextView counter = (TextView) findViewById(R.id.value);
-        counter.setText(String.valueOf(counterMaintainer.getCounter().getValue()));
+        counter.setText(String.valueOf(statsController.getCounter().getValue()));
 
         // Init goals
         RecyclerView goalsView = (RecyclerView) findViewById(R.id.goals);
+
+        // Setup goals view layout
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         goalsView.setLayoutManager(linearLayoutManager);
-        GoalsAdapter adapter = new GoalsAdapter(counterMaintainer.getGoals());
-        goalsView.setAdapter(adapter);
 
-        // On counter attributes changed
-        counterMaintainer.setCounterChangedListeners(new CounterMaintainer.CounterListener() {
+        // Bind goals to view
+        GoalsAdapter adapter = new GoalsAdapter(statsController.getGoals());
+        goalsView.setAdapter(adapter);
+        statsController.setGoalsChangedListeners(new StatsController.GoalsListener() {
             @Override
-            public void onValueChanged(Integer value) {
-                counter.setText(String.valueOf(value));
+            public void onGoalAdded(Integer position) {
+                adapter.notifyItemInserted(position);
             }
 
             @Override
-            public void onGoalsChanged(List<Goal> goals) {
+            public void onGoalRemoved(Integer position) {
+                adapter.notifyItemRemoved(position);
+            }
 
+            @Override
+            public void onGoalsChanged() {
+                adapter.notifyDataSetChanged();
             }
         });
 
+        // On counter value changed
+        statsController.setCounterChangedListeners(value -> counter.setText(String.valueOf(value)));
+
         // Open Reminder dialog
-        if(counterMaintainer.noUpdateLastCycle()){
+        if(statsController.noUpdateLastCycle()){
             new ReminderDialogFragment().show(getSupportFragmentManager(), "reminder_dialog");
         }
 
         // implement the App Indexing API
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    public void onAddOneButtonClick(View view){
+        statsController.addGoal(new Goal("Goal", "Dit is een test goal", 200));
+    }
+
+    public void onAddOneButtonClick2(View view){
+        List<Goal> temp = statsController.getGoals();
+        if(temp.size() > 0) {
+            statsController.removeGoal(temp.get(temp.size() - 1));
+        }
     }
 
     @Override
@@ -92,7 +114,8 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         else if(id.equals(R.id.action_reset)){
-            counterMaintainer.resetCounter();
+            statsController.resetCounter();
+            statsController.resetGoals();
         }
 
         return super.onOptionsItemSelected(item);
@@ -141,26 +164,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        counterMaintainer.triggerValueChangedListeners();
+        statsController.notifyCounterValueChanged();
     }
 
-    public CounterMaintainer getCounterMaintainer() {
-        return counterMaintainer;
+    public StatsController getStatsController() {
+        return statsController;
     }
 
     public static class ReminderDialogFragment extends DialogFragment {
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            CounterMaintainer counterMaintainer = ((MainActivity) getActivity()).getCounterMaintainer();
+            StatsController statsController = ((MainActivity) getActivity()).getStatsController();
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.reminder_newcycle)
                     .setCancelable(false)
                     .setPositiveButton(R.string.reminder_yes, (dialog, which) -> {
-                        counterMaintainer.initNewCycle(true);
+                        statsController.initNewCycle(true);
                     })
                     .setNegativeButton(R.string.reminder_no, (dialog, which) -> {
-                        counterMaintainer.initNewCycle(false);
+                        statsController.initNewCycle(false);
                     });
             return dialogBuilder.create();
         }

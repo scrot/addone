@@ -55,13 +55,13 @@ public class CounterTests {
     public void readWriteCounter() throws IOException, JSONException {
         File temp = new File(System.getProperty("java.io.tmpdir"));
 
-        CounterMaintainer counterMaintainer = new CounterMaintainer(temp);
-        counterMaintainer.getCounter().setValue(10);
-        Counter.writeCounter(counterMaintainer.getCounter(), temp);
+        StatsController statsController = new StatsController(temp);
+        statsController.getCounter().setValue(10);
+        Counter.writeCounter(statsController.getCounter(), temp);
 
-        CounterMaintainer counterMaintainerFromFile = new CounterMaintainer(temp);
+        StatsController statsControllerFromFile = new StatsController(temp);
 
-        assertThat(counterMaintainer.getCounter(), is(counterMaintainerFromFile.getCounter()));
+        assertThat(statsController.getCounter(), is(statsControllerFromFile.getCounter()));
 
     }
 
@@ -70,7 +70,7 @@ public class CounterTests {
     public void validateCounter() throws IOException, JSONException {
         // valid counter file
         File temp = new File(System.getProperty("java.io.tmpdir"));
-        Counter.writeCounter(new Counter(), temp);
+        Counter.writeStats(new Counter(), temp);
         assertThat(Counter.IsValidCounterFile(temp), is(true));
 
         // Invalid counter file

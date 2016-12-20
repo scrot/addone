@@ -7,7 +7,7 @@ import android.view.MenuItem;
 import java.io.File;
 import java.util.List;
 
-import nl.rdewildt.addone.CounterMaintainer;
+import nl.rdewildt.addone.StatsController;
 import nl.rdewildt.addone.R;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
@@ -49,8 +49,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             setHasOptionsMenu(true);
 
             findPreference("value").setOnPreferenceChangeListener((pref, o) -> {
-                CounterMaintainer counterMaintainer = new CounterMaintainer(new File(getContext().getFilesDir(), "counter.json"), new WeeklyCounterUpdater());
-                counterMaintainer.getCounter().setValue(Integer.parseInt(o.toString()));
+                StatsController statsController = new StatsController(new File(getContext().getFilesDir(), "counter.json"), new WeeklyCounterUpdater());
+                statsController.getCounter().setValue(Integer.parseInt(o.toString()));
                 return true;
             });
         }
