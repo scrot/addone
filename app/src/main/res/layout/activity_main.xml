@@ -35,13 +35,25 @@
 
         <TextView
             android:id="@+id/value"
-            style="@style/Addone"/>
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textSize="140sp"
+            android:gravity="center"/>
+
+        <LinearLayout
+            android:id="@+id/subcounter"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_below="@id/value" />
 
         <TextView
             android:id="@+id/goalstag"
             android:text="@string/goals"
             android:textSize="20sp"
-            android:layout_below="@+id/value"
+            android:layout_below="@+id/subcounter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -59,6 +71,7 @@
         android:layout_width="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:onClick="addOne"
         addone:fam_long_press="true"
         addone:fam_size="56dp"
         addone:fam_icon_size="28dp">

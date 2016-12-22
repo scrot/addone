@@ -2,6 +2,10 @@ package nl.rdewildt.addone;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,6 +18,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
@@ -21,7 +27,6 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
-import java.util.List;
 
 import nl.rdewildt.addone.settings.SettingsActivity;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
@@ -32,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private File statspath;
     private StatsController statsController;
 
+    private TextView counterView;
+    private LinearLayout subCounterView;
     private RecyclerView goalsView;
 
     @Override
@@ -42,15 +49,42 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Init counter maintainer
-        File statsFile = new File(getApplicationContext().getFilesDir(), "counter.json");
+        setupCounter();
+        setupGoals();
+
+        // Open Reminder dialog
+        if(statsController.noUpdateLastCycle()){
+            new ReminderDialogFragment().show(getSupportFragmentManager(), "reminder_dialog");
+        }
+
+        // implement the App Indexing API
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    private void setupCounter(){
+        // Init counterView maintainer
+        File statsFile = new File(getApplicationContext().getFilesDir(), "counterView.json");
         this.statspath = statsFile;
         this.statsController = new StatsController(statsFile, new WeeklyCounterUpdater());
 
-        // Init counter
-        TextView counter = (TextView) findViewById(R.id.value);
-        counter.setText(String.valueOf(statsController.getCounter().getValue()));
+        // Init counterView
+        counterView = (TextView) findViewById(R.id.value);
+        counterView.setText(String.valueOf(statsController.getCounter().getValue()));
 
+
+        // Add subcounter icons to view
+        subCounterView = (LinearLayout) findViewById(R.id.subcounter);
+        for(int i = 0; i < statsController.getCounter().getMaxSubValue(); i++){
+            ImageView subCounterItem = (ImageView) getLayoutInflater().inflate(R.layout.sub_counter_item, null);
+            if(i < statsController.getCounter().getSubValue()){
+                subCounterItem.setColorFilter(getResources().getColor(R.color.colorAccent, null));
+            }
+            subCounterView.addView(subCounterItem);
+        }
+
+    }
+
+    private void setupGoals(){
         // Init goals
         goalsView = (RecyclerView) findViewById(R.id.goals);
 
@@ -80,16 +114,12 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
-        statsController.setCounterChangedListeners(value -> counter.setText(String.valueOf(value)));
+        statsController.setCounterChangedListeners(value -> counterView.setText(String.valueOf(value)));
         statsController.addStatsChangedListener(() -> goalsView.getAdapter().notifyDataSetChanged());
+    }
 
-        // Open Reminder dialog
-        if(statsController.noUpdateLastCycle()){
-            new ReminderDialogFragment().show(getSupportFragmentManager(), "reminder_dialog");
-        }
-
-        // implement the App Indexing API
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    public void addOne(View view){
+        statsController.increaseCounter();
     }
 
     public void addNewGoal(View view){
