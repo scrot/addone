@@ -32,7 +32,7 @@ public class Stats {
 
         this.counter = new Counter();
         this.goals = new ArrayList<>();
-        this.bonuses = new ArrayList<>();
+        this.bonuses = new ArrayList<Bonus>(){{add(new Bonus());}};
 
         if(!statspath.isFile()) {
             writeStats();
@@ -68,8 +68,11 @@ public class Stats {
 
     public void resetStats() {
         counter = new Counter();
+
         goals.clear();
+
         bonuses.clear();
+        bonuses.add(new Bonus());
 
         writeStats();
     }

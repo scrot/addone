@@ -28,6 +28,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
 
+import nl.rdewildt.addone.model.Bonus;
 import nl.rdewildt.addone.settings.SettingsActivity;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         setupCounter();
+        setupSubCounter();
         setupGoals();
 
         // Open Reminder dialog
@@ -71,10 +73,28 @@ public class MainActivity extends AppCompatActivity {
         counterView = (TextView) findViewById(R.id.value);
         counterView.setText(String.valueOf(statsController.getCounter().getValue()));
 
+        statsController.addBonusesChangedListener(new StatsController.BonusesListener() {
+            @Override
+            public void onBonusAdded(Integer position) {
+                setupSubCounter();
+            }
 
-        // Add subcounter icons to view
+            @Override
+            public void onBonusRemoved(Integer position) {
+                setupSubCounter();
+            }
+        });
+
+
+    }
+
+    private void setupSubCounter(){
+        // Init subcounterView
         subCounterView = (LinearLayout) findViewById(R.id.subcounter);
-        for(int i = 0; i < statsController.getCounter().getMaxSubValue(); i++){
+        subCounterView.removeAllViews();
+
+        Bonus relevantBonus = statsController.getNextRelevantBonus(statsController.getCounter().getSubValue());
+        for(int i = 1; i <= relevantBonus.getPoints(); i++){
             ImageView subCounterItem = (ImageView) getLayoutInflater().inflate(R.layout.sub_counter_item, null);
             if(i < statsController.getCounter().getSubValue()){
                 subCounterItem.setColorFilter(getResources().getColor(R.color.colorAccent, null));
@@ -114,7 +134,17 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
-        statsController.setCounterChangedListeners(value -> counterView.setText(String.valueOf(value)));
+        statsController.setCounterChangedListeners(new StatsController.CounterListener() {
+            @Override
+            public void onValueChanged(Integer value) {
+                counterView.setText(String.valueOf(value));
+            }
+
+            @Override
+            public void onSubValueChanged(Integer value) {
+                setupSubCounter();
+            }
+        });
         statsController.addStatsChangedListener(() -> goalsView.getAdapter().notifyDataSetChanged());
     }
 

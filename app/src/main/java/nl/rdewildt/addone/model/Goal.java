@@ -8,7 +8,7 @@ import java.util.Objects;
  * Created by roydewildt on 06/10/2016.
  */
 
-public class Goal implements Comparable {
+public class Goal implements Comparable<Goal> {
     private String name;
     private String summary;
     private Integer requiredPoints;
@@ -50,19 +50,15 @@ public class Goal implements Comparable {
     }
 
     @Override
-    public int compareTo(@NonNull Object o) {
-        if(o instanceof Goal){
-            Goal y = (Goal) o;
-            if(this.getRequiredPoints() < y.getRequiredPoints()) {
-                return -1;
-            }
-            else if (Objects.equals(this.getRequiredPoints(), y.getRequiredPoints())){
-                return 0;
-            }
-            else if (this.getRequiredPoints() > y.getRequiredPoints()){
-                return 1;
-            }
+    public int compareTo(@NonNull Goal y) {
+        if(this.getRequiredPoints() < y.getRequiredPoints()) {
+            return -1;
         }
-        return -1;
+        else if (Objects.equals(this.getRequiredPoints(), y.getRequiredPoints())){
+            return 0;
+        }
+        else {
+            return 1;
+        }
     }
 }

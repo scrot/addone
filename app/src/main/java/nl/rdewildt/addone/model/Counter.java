@@ -14,17 +14,14 @@ public class Counter {
     private Integer increaseRate;
     private Integer decreaseRate;
 
-    private Integer maxSubValue;
-
     public Counter() {
         this.value = 0;
-        this.subValue = 1;
+        this.subValue = 0;
 
         this.lastUpdated = new DateTime().minusWeeks(1);
 
         this.increaseRate = 1;
         this.decreaseRate = 1;
-        this.maxSubValue = 3;
     }
 
     public Counter(Integer value, DateTime lastUpdated, Integer increaseRate, Integer decreaseRate, Integer maxSubValue) {
@@ -35,8 +32,6 @@ public class Counter {
 
         this.increaseRate = increaseRate;
         this.decreaseRate = decreaseRate;
-
-        this.maxSubValue = maxSubValue;
     }
 
     public void reset(){
@@ -82,14 +77,6 @@ public class Counter {
 
     public void setDecreaseRate(Integer decreaseRate) {
         this.decreaseRate = decreaseRate;
-    }
-
-    public Integer getMaxSubValue() {
-        return maxSubValue;
-    }
-
-    public void setMaxSubValue(Integer maxSubValue) {
-        this.maxSubValue = maxSubValue;
     }
 
     @Override
