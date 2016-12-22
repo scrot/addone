@@ -1,10 +1,14 @@
 package nl.rdewildt.addone.model;
 
+import android.support.annotation.NonNull;
+
+import java.util.Objects;
+
 /**
  * Created by roydewildt on 06/10/2016.
  */
 
-public class Goal {
+public class Goal implements Comparable {
     private String name;
     private String summary;
     private Integer requiredPoints;
@@ -43,5 +47,22 @@ public class Goal {
 
     public void setRequiredPoints(Integer requiredPoints) {
         this.requiredPoints = requiredPoints;
+    }
+
+    @Override
+    public int compareTo(@NonNull Object o) {
+        if(o instanceof Goal){
+            Goal y = (Goal) o;
+            if(this.getRequiredPoints() < y.getRequiredPoints()) {
+                return -1;
+            }
+            else if (Objects.equals(this.getRequiredPoints(), y.getRequiredPoints())){
+                return 0;
+            }
+            else if (this.getRequiredPoints() > y.getRequiredPoints()){
+                return 1;
+            }
+        }
+        return -1;
     }
 }

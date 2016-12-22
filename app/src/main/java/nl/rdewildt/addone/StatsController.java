@@ -86,8 +86,7 @@ public class StatsController {
      */
 
     public void addGoal(Goal goal) {
-        getGoals().add(goal);
-        int position = getGoals().indexOf(goal);
+        int position = binaryInsert(goal, getGoals());
         notifyGoalAdded(position);
         stats.writeStats();
     }
@@ -98,6 +97,38 @@ public class StatsController {
             getGoals().remove(position);
             notifyGoalRemoved(position);
             stats.writeStats();
+        }
+    }
+
+    private <T extends Comparable<T>> int binaryInsert(T x, List<T> xs){
+        if(xs.isEmpty()){
+            xs.add(x);
+            return 0;
+        }
+
+        int start = 0;
+        int end = xs.size() - 1;
+
+        while(start != end) {
+            int middle = (end - start) / 2 + start;
+            T y = xs.get(middle);
+
+            if(x.compareTo(y) == 1){
+                start = middle + 1;
+            }
+            else {
+                end = middle;
+            }
+        }
+
+        T y = xs.get(start);
+        if(x.compareTo(y) == -1){
+            xs.add(start, x);
+            return start;
+        }
+        else {
+            xs.add(start + 1, x);
+            return start + 1;
         }
     }
 
