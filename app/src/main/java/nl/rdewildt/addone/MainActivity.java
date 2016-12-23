@@ -2,10 +2,6 @@ package nl.rdewildt.addone;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,7 +24,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
 
+import nl.rdewildt.addone.fam.FloatingActionMenu;
 import nl.rdewildt.addone.model.Bonus;
+import nl.rdewildt.addone.model.Counter;
 import nl.rdewildt.addone.settings.SettingsActivity;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
@@ -55,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         setupGoals();
 
         // Open Reminder dialog
-        if(statsController.noUpdateLastCycle()){
+        if(statsController.isNewCycle()){
             new ReminderDialogFragment().show(getSupportFragmentManager(), "reminder_dialog");
         }
 
@@ -73,19 +71,25 @@ public class MainActivity extends AppCompatActivity {
         counterView = (TextView) findViewById(R.id.value);
         counterView.setText(String.valueOf(statsController.getCounter().getValue()));
 
-        statsController.addBonusesChangedListener(new StatsController.BonusesListener() {
+        statsController.setCounterChangedListeners(new StatsController.CounterListener() {
             @Override
-            public void onBonusAdded(Integer position) {
+            public void onValueChanged(Integer value) {
+                counterView.setText(String.valueOf(value));
+            }
+
+            @Override
+            public void onSubValueChanged(Integer value) {
                 setupSubCounter();
             }
 
             @Override
-            public void onBonusRemoved(Integer position) {
+            public void onCounterChanged(Counter counter) {
+                counterView.setText(String.valueOf(counter.getValue()));
                 setupSubCounter();
             }
         });
 
-
+        statsController.addBonusesChangedListener(this::setupSubCounter);
     }
 
     private void setupSubCounter(){
@@ -96,12 +100,11 @@ public class MainActivity extends AppCompatActivity {
         Bonus relevantBonus = statsController.getNextRelevantBonus(statsController.getCounter().getSubValue());
         for(int i = 1; i <= relevantBonus.getPoints(); i++){
             ImageView subCounterItem = (ImageView) getLayoutInflater().inflate(R.layout.sub_counter_item, null);
-            if(i < statsController.getCounter().getSubValue()){
+            if(i <= statsController.getCounter().getSubValue()){
                 subCounterItem.setColorFilter(getResources().getColor(R.color.colorAccent, null));
             }
             subCounterView.addView(subCounterItem);
         }
-
     }
 
     private void setupGoals(){
@@ -117,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         GoalsAdapter adapter = new GoalsAdapter(statsController.getGoals());
         goalsView.setAdapter(adapter);
 
-        // Set change listeners
+        // Set listeners
         statsController.setGoalsChangedListeners(new StatsController.GoalsListener() {
             @Override
             public void onGoalAdded(Integer position) {
@@ -134,18 +137,9 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
-        statsController.setCounterChangedListeners(new StatsController.CounterListener() {
-            @Override
-            public void onValueChanged(Integer value) {
-                counterView.setText(String.valueOf(value));
-            }
 
-            @Override
-            public void onSubValueChanged(Integer value) {
-                setupSubCounter();
-            }
-        });
-        statsController.addStatsChangedListener(() -> goalsView.getAdapter().notifyDataSetChanged());
+        FloatingActionMenu fam = (FloatingActionMenu) findViewById(R.id.fam);
+        fam.setOnClickListener(this::addOne);
     }
 
     public void addOne(View view){
@@ -184,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(id.equals(R.id.action_reset)){
             statsController.resetStats();
+            statsController.addBonus(new Bonus(3, 1)); //TODO testBonus
         }
 
         return super.onOptionsItemSelected(item);

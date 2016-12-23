@@ -241,6 +241,15 @@ public class FloatingActionMenu extends ViewGroup {
     }
 
     @Override
+    public void setOnClickListener(OnClickListener l) {
+        if(mFloatingActionMenu != null) {
+            mFloatingActionMenu.setOnClickListener(l);
+        }
+    }
+
+
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         //To be measured
         int maxHeight = 0;
@@ -269,9 +278,9 @@ public class FloatingActionMenu extends ViewGroup {
 
     @Override
     protected void onFinishInflate() {
-        super.onFinishInflate();
         addMainFloatingActionButton();
         switchChildrenVisibility(View.GONE);
+        super.onFinishInflate();
     }
 
     @Override

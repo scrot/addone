@@ -7,8 +7,8 @@ import android.view.MenuItem;
 import java.io.File;
 import java.util.List;
 
-import nl.rdewildt.addone.StatsController;
 import nl.rdewildt.addone.R;
+import nl.rdewildt.addone.StatsController;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {

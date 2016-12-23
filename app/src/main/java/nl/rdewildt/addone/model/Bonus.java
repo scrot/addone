@@ -39,6 +39,23 @@ public class Bonus implements Comparable<Bonus> {
     }
 
     @Override
+    public int hashCode() {
+        int result = 101;
+        result = result * 31 + getPoints().hashCode();
+        result = result * 31 + getReward().hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Bonus){
+            Bonus y = (Bonus) obj;
+            return y.getPoints().equals(this.getPoints()) && y.getReward().equals(this.getReward());
+        }
+        return false;
+    }
+
+    @Override
     public int compareTo(@NonNull Bonus y) {
         if(this.getPoints() < y.getPoints()){
             return -1;

@@ -13,6 +13,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import nl.rdewildt.addone.helper.DateTimeSerializer;
 
@@ -25,14 +27,16 @@ public class Stats {
 
     private Counter counter;
     private List<Goal> goals;
-    private List<Bonus> bonuses;
+    private SortedSet<Bonus> bonuses;
 
     public Stats(File statspath){
         this.statspath = statspath;
 
         this.counter = new Counter();
         this.goals = new ArrayList<>();
-        this.bonuses = new ArrayList<Bonus>(){{add(new Bonus());}};
+        this.bonuses = new TreeSet<>();
+
+        this.bonuses.add(new Bonus());
 
         if(!statspath.isFile()) {
             writeStats();
@@ -58,16 +62,16 @@ public class Stats {
         this.goals = goals;
     }
 
-    public List<Bonus> getBonuses() {
+    public SortedSet<Bonus> getBonuses() {
         return bonuses;
     }
 
-    public void setBonuses(List<Bonus> bonuses) {
+    public void setBonuses(SortedSet<Bonus> bonuses) {
         this.bonuses = bonuses;
     }
 
     public void resetStats() {
-        counter = new Counter();
+        counter.reset();
 
         goals.clear();
 

@@ -4,8 +4,11 @@ import org.joda.time.DateTime;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 
+import nl.rdewildt.addone.helper.BinarySearch;
 import nl.rdewildt.addone.model.Bonus;
 import nl.rdewildt.addone.model.Counter;
 import nl.rdewildt.addone.model.Goal;
@@ -30,6 +33,7 @@ public class StatsController {
     public interface CounterListener {
         void onValueChanged(Integer value);
         void onSubValueChanged(Integer value);
+        void onCounterChanged(Counter counter);
     }
 
     public interface GoalsListener {
@@ -39,8 +43,7 @@ public class StatsController {
     }
 
     public interface BonusesListener {
-        void onBonusAdded(Integer position);
-        void onBonusRemoved(Integer position);
+        void onBonusChanged();
     }
 
     public StatsController(File statspath){
@@ -52,11 +55,11 @@ public class StatsController {
         stats = new Stats(statspath);
 
         this.counterUpdater = counterUpdater;
+        counterUpdater.setCounter(getCounter());
 
         counterChangedListeners = new ArrayList<>();
         goalsChangedListeners  = new ArrayList<>();
         bonusesChangedListeners = new ArrayList<>();
-        statsChangedListeners = new ArrayList<>();
     }
 
     /*
@@ -64,14 +67,14 @@ public class StatsController {
      */
 
     public void increaseCounter() {
-        counterUpdater.increaseCounter(getCounter(), getCounter().getIncreaseRate());
-        stats.getCounter().setSubValue(stats.getCounter().getSubValue() + 1); //TODO work subvalue system out
+        counterUpdater.increaseCounter(getNextRelevantBonus(getCounter().getSubValue()));
         stats.writeStats();
         notifyCounterValueChanged();
+        notifySubCounterValueChanged();
     }
 
     public void decreaseCounter() {
-        counterUpdater.decreaseCounter(getCounter(), getCounter().getDecreaseRate());
+        counterUpdater.decreaseCounter();
         stats.writeStats();
         notifyCounterValueChanged();
     }
@@ -93,6 +96,12 @@ public class StatsController {
         }
     }
 
+    public void notifyCounterChanged() {
+        for(CounterListener counterListener : counterChangedListeners){
+            counterListener.onCounterChanged(stats.getCounter());
+        }
+    }
+
     public void setCounterChangedListeners(CounterListener f){
         counterChangedListeners.add(f);
     }
@@ -102,7 +111,8 @@ public class StatsController {
      */
 
     public void addGoal(Goal goal) {
-        int position = binaryInsert(goal, getGoals());
+        int position = BinarySearch.binaryInsertIndex(goal, getGoals());
+        getGoals().add(position, goal);
         notifyGoalAdded(position);
         stats.writeStats();
     }
@@ -147,34 +157,36 @@ public class StatsController {
      */
 
     public void addBonus(Bonus bonus){
-        int position = binaryInsert(bonus, stats.getBonuses());
-        notifyBonusAdded(position);
-        stats.writeStats();
+        if(!getBonuses().contains(bonus)) {
+            getBonuses().add(bonus);
+            notifyBonusChanged();
+            stats.writeStats();
+        }
     }
 
     public void removeBonus(Bonus bonus){
         if(getBonuses().contains(bonus)){
-            int position = getBonuses().indexOf(bonus);
-            getBonuses().remove(position);
-            notifyBonusRemoved(position);
+            getBonuses().remove(bonus);
+            notifyBonusChanged();
             stats.writeStats();
         }
     }
 
     public Bonus getNextRelevantBonus(Integer key){
-        Bonus x = new Bonus(key, -1);
-        return binaryClosestSearch(x, getBonuses());
-    }
+        Iterator<Bonus> it = getBonuses().iterator();
 
-    public void notifyBonusAdded(Integer position) {
-        for(BonusesListener bonusesListener : bonusesChangedListeners){
-            bonusesListener.onBonusAdded(position);
+        int points = -1;
+        Bonus elem = null;
+        while(it.hasNext() && key >= points){
+            elem = it.next();
+            points = elem.getPoints();
         }
+        return elem;
     }
 
-    public void notifyBonusRemoved(Integer position) {
+    public void notifyBonusChanged() {
         for(BonusesListener bonusesListener : bonusesChangedListeners){
-            bonusesListener.onBonusRemoved(position);
+            bonusesListener.onBonusChanged();
         }
     }
 
@@ -182,7 +194,7 @@ public class StatsController {
         bonusesChangedListeners.add(f);
     }
 
-    public List<Bonus> getBonuses(){
+    public SortedSet<Bonus> getBonuses(){
         return stats.getBonuses();
     }
 
@@ -202,94 +214,28 @@ public class StatsController {
     }
 
     public Boolean isNewCycle() {
-        return counterUpdater.isNewCycle(getCounter());
+        return counterUpdater.isNewCycle();
     }
 
-    public Boolean noUpdateLastCycle(){
-        return counterUpdater.noUpdateLastCycle(getCounter());
+    public int cycleDiff(){
+        return counterUpdater.cycleDiff();
     }
 
     /*
      *  Stats Actions
      */
 
-    private List<StatsChangedListener> statsChangedListeners;
-    public interface StatsChangedListener{
-        void onChanged();
-    }
-
     public void resetStats(){
         stats.resetStats();
-        notifyStatsChanged();
+        notifyCounterChanged();
+        notifyGoalsChanged();
+        notifyBonusChanged();
     }
 
     public void reloadStats(){
         stats.syncStats();
-        notifyStatsChanged();
-    }
-
-    public void addStatsChangedListener(StatsChangedListener f){
-        statsChangedListeners.add(f);
-    }
-
-    public void notifyStatsChanged(){
-        for(StatsChangedListener f : statsChangedListeners){
-            f.onChanged();
-        }
-    }
-
-    /*
-     *  Helper functions
-     */
-
-    private <T extends Comparable<T>> int binaryInsert(T x, List<T> xs){
-        if(xs.isEmpty()){
-            xs.add(x);
-            return 0;
-        }
-
-        int start = 0;
-        int end = xs.size() - 1;
-
-        while(start != end) {
-            int middle = (end - start) / 2 + start;
-            T y = xs.get(middle);
-
-            if(x.compareTo(y) == 1){
-                start = middle + 1;
-            }
-            else {
-                end = middle;
-            }
-        }
-
-        T y = xs.get(start);
-        if(x.compareTo(y) == -1){
-            xs.add(start, x);
-            return start;
-        }
-        else {
-            xs.add(start + 1, x);
-            return start + 1;
-        }
-    }
-
-    private <T extends Comparable<T>> T binaryClosestSearch(T key, List<T> a) {
-        if(a.isEmpty()){
-            return null;
-        }
-        int lo = 0;
-        int hi = a.size() - 1;
-        int mid = 0;
-        while (lo != hi) {
-            mid = lo + (hi - lo) / 2;
-            if      (key.compareTo(a.get(mid)) == -1){
-                hi = mid - 1;
-            }
-            else if (key.compareTo(a.get(mid)) == 1){
-                lo = mid + 1;
-            }
-        }
-        return a.get(mid);
+        notifyCounterChanged();
+        notifyGoalsChanged();
+        notifyBonusChanged();
     }
 }

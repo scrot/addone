@@ -11,17 +11,10 @@ public class Counter {
 
     private DateTime lastUpdated;
 
-    private Integer increaseRate;
-    private Integer decreaseRate;
-
     public Counter() {
         this.value = 0;
         this.subValue = 0;
-
         this.lastUpdated = new DateTime().minusWeeks(1);
-
-        this.increaseRate = 1;
-        this.decreaseRate = 1;
     }
 
     public Counter(Integer value, DateTime lastUpdated, Integer increaseRate, Integer decreaseRate, Integer maxSubValue) {
@@ -29,13 +22,11 @@ public class Counter {
         this.subValue = 0;
 
         this.lastUpdated = lastUpdated;
-
-        this.increaseRate = increaseRate;
-        this.decreaseRate = decreaseRate;
     }
 
     public void reset(){
         this.value = 0;
+        this.subValue = 0;
         this.lastUpdated = new DateTime().minusWeeks(1);
     }
 
@@ -63,22 +54,6 @@ public class Counter {
         this.lastUpdated = lastUpdated;
     }
 
-    public Integer getIncreaseRate() {
-        return increaseRate;
-    }
-
-    public void setIncreaseRate(Integer increaseRate) {
-        this.increaseRate = increaseRate;
-    }
-
-    public Integer getDecreaseRate() {
-        return decreaseRate;
-    }
-
-    public void setDecreaseRate(Integer decreaseRate) {
-        this.decreaseRate = decreaseRate;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Counter){
@@ -94,7 +69,8 @@ public class Counter {
     @Override
     public int hashCode() {
         int result = 101;
-        result = result * 31 + value.hashCode();
+        result = result * 31 + getValue().hashCode();
+        result = result * 31 + getSubValue().hashCode();
         result = result * 31 + getLastUpdated().hashCode();
         return result;
     }
