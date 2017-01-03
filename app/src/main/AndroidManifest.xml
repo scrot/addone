@@ -24,13 +24,14 @@
         <!-- Settings Activity -->
         <activity
             android:name=".settings.SettingsActivity"
-            android:parentActivityName=".MainActivity"></activity>
+            android:parentActivityName=".MainActivity" />
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".AddGoalActivity"></activity>
+        <activity android:name=".AddGoalActivity" />
+        <activity android:name=".ManageGoalsActivity"></activity>
     </application>
 
 </manifest>

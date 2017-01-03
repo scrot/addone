@@ -30,6 +30,7 @@ public class AddGoalActivity extends AppCompatActivity {
         this.goalDescription = (EditText) findViewById(R.id.goal_description_input);
         this.goalPointsNeeded = (EditText) findViewById(R.id.goal_points_needed_input);
 
+        // Enable exit in actionbar
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }

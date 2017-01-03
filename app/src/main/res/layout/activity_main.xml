@@ -71,10 +71,39 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin"
         addone:fam_long_press="true"
         addone:fam_size="56dp"
         addone:fam_icon_size="28dp">
+        <nl.rdewildt.addone.fam.FloatingActionMenuButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="addNewGoal"
+            addone:famb_size="40dp"
+            addone:famb_icon_src="@drawable/ic_star"
+            addone:famb_icon_size="24dp"/>
+        <nl.rdewildt.addone.fam.FloatingActionMenuButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="addNewGoal"
+            addone:famb_size="40dp"
+            addone:famb_icon_src="@drawable/ic_star"
+            addone:famb_icon_size="24dp"/>
+        <nl.rdewildt.addone.fam.FloatingActionMenuButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="addNewGoal"
+            addone:famb_size="40dp"
+            addone:famb_icon_src="@drawable/ic_star"
+            addone:famb_icon_size="24dp"/>
+        <nl.rdewildt.addone.fam.FloatingActionMenuButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="addNewGoal"
+            addone:famb_size="40dp"
+            addone:famb_icon_src="@drawable/ic_star"
+            addone:famb_icon_size="24dp"/>
         <nl.rdewildt.addone.fam.FloatingActionMenuButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

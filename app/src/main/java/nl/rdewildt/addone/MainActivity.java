@@ -53,9 +53,9 @@ public class MainActivity extends AppCompatActivity {
         setupGoals();
 
         // Open Reminder dialog
-        if(statsController.isNewCycle()){
+        /*if(statsController.isNewCycle()){
             new ReminderDialogFragment().show(getSupportFragmentManager(), "reminder_dialog");
-        }
+        }*/
 
         // implement the App Indexing API
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(id.equals(R.id.action_reset)){
             statsController.resetStats();
-            statsController.addBonus(new Bonus(3, 1)); //TODO testBonus
+            statsController.addBonus(new Bonus("test", 3, 1)); //TODO testBonus
         }
 
         return super.onOptionsItemSelected(item);

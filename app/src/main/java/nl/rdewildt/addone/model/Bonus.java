@@ -9,17 +9,28 @@ import java.util.Objects;
  */
 
 public class Bonus implements Comparable<Bonus> {
+    private String name;
     private Integer points;
     private Integer reward;
 
     public Bonus() {
+        this.name = null;
         this.points = 1;
         this.reward = 1;
     }
 
-    public Bonus(Integer points, Integer reward) {
+    public Bonus(String name, Integer points, Integer reward) {
+        this.name = name;
         this.points = points;
         this.reward = reward;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Integer getPoints() {
@@ -41,6 +52,7 @@ public class Bonus implements Comparable<Bonus> {
     @Override
     public int hashCode() {
         int result = 101;
+        result = result * 31 + getName().hashCode();
         result = result * 31 + getPoints().hashCode();
         result = result * 31 + getReward().hashCode();
         return result;
@@ -50,7 +62,7 @@ public class Bonus implements Comparable<Bonus> {
     public boolean equals(Object obj) {
         if(obj instanceof Bonus){
             Bonus y = (Bonus) obj;
-            return y.getPoints().equals(this.getPoints()) && y.getReward().equals(this.getReward());
+            return y.getName().equals(this.getName()) && y.getPoints().equals(this.getPoints()) && y.getReward().equals(this.getReward());
         }
         return false;
     }
