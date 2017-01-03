@@ -13,7 +13,7 @@ import nl.rdewildt.addone.fam.FloatingActionMenuButton;
  * Created by roydewildt on 02/01/2017.
  */
 
-public abstract class WellBuckets extends FamAnimation {
+public abstract class Accordion extends FamAnimation {
     public static final int DIRECTION_DOWN = 0;
     public static final int DIRECTION_UP = 1;
 
@@ -21,7 +21,7 @@ public abstract class WellBuckets extends FamAnimation {
     private final int rotateTo;
     private final int translateDirection;
 
-    public WellBuckets(FloatingActionMenu floatingActionMenu, int rotateFrom, int rotateTo, int translateDirection) {
+    public Accordion(FloatingActionMenu floatingActionMenu, int rotateFrom, int rotateTo, int translateDirection) {
         super(floatingActionMenu);
 
         this.rotateFrom = rotateFrom;

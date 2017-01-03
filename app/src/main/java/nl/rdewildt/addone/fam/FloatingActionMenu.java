@@ -9,12 +9,8 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.OvershootInterpolator;
 
 import java.security.InvalidParameterException;
 
@@ -38,8 +34,11 @@ public class FloatingActionMenu extends ViewGroup {
     public static final int MENU_STATE_COLLAPSED = 2;
     public static final int MENU_STATE_EXPANDED = 3;
 
-    private int mMenuState = MENU_STATE_EXPANDED;
+    private int mMenuState = MENU_STATE_COLLAPSED;
     private int mPrevMenuState = MENU_STATE_NONE;
+
+    // Animations
+    public static final int ANIM_DURATION = 600;
 
     // Animation Factory
     static final FamAnimationFactory mAnimFactory = new DefaultFamAnimationFactory();
@@ -87,7 +86,22 @@ public class FloatingActionMenu extends ViewGroup {
     @Override
     protected void onFinishInflate() {
         addMainFloatingActionButton();
-        collapse();
+        if(mMenuState == MENU_STATE_COLLAPSED) {
+            positionChildren();
+        }
+    }
+
+    private void positionChildren() {
+        measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
+        int pos = getFloatingActionMenuMainButton().getMeasuredHeight() + getChildSpacing();
+        for (int i = 0; i < getChildCount(); i++) {
+            final View child = getChildAt(i);
+            if (!child.equals(getFloatingActionMenuMainButton())) {
+                child.setTranslationY(pos);
+                child.setVisibility(View.GONE);
+                pos += child.getMeasuredHeight() + getChildSpacing();
+            }
+        }
     }
 
     private void addMainFloatingActionButton(){
@@ -109,43 +123,45 @@ public class FloatingActionMenu extends ViewGroup {
 
     public void collapse() {
         if(mMenuState == MENU_STATE_EXPANDED) {
+            mMenuState = MENU_STATE_COLLAPSED;
             FamAnimation anim = mAnimFactory.collapse(this);
-            anim.addFamAnimationListener(() -> {
-                mMenuState = MENU_STATE_COLLAPSED;
-                switchChildrenVisibility(GONE);
-                requestLayout();
-            });
+            anim.addFamAnimationListener(() -> switchChildrenVisibility(GONE));
             anim.start();
         }
     }
 
     public void expand() {
         if(mMenuState == MENU_STATE_COLLAPSED) {
-            switchChildrenVisibility(VISIBLE);
+            mMenuState = MENU_STATE_EXPANDED;
+            switchChildrenVisibility(View.VISIBLE);
             FamAnimation anim = mAnimFactory.expand(this);
-            anim.addFamAnimationListener(() -> {
-                mMenuState = MENU_STATE_EXPANDED;
-                requestLayout();
-            });
             anim.start();
         }
     }
 
-    public void fadeIn(){
+    public void show(){
         if(mMenuState == MENU_STATE_HIDDEN) {
+            mMenuState = mPrevMenuState;
+            getFloatingActionMenuMainButton().setVisibility(View.VISIBLE);
+            if(mMenuState == MENU_STATE_EXPANDED){
+                switchChildrenVisibility(View.VISIBLE);
+            }
             FamAnimation anim = mAnimFactory.show(this);
-            anim.addFamAnimationListener(() -> mMenuState = mPrevMenuState);
-            anim.start();
+            anim.setDuration(50).start();
 
         }
     }
 
-    public void fadeOut(){
+    public void hide(){
         if(mMenuState != MENU_STATE_HIDDEN) {
             mPrevMenuState = mMenuState;
+            mMenuState = MENU_STATE_HIDDEN;
             FamAnimation anim = mAnimFactory.hide(this);
-            anim.addFamAnimationListener(() -> mMenuState = MENU_STATE_HIDDEN);
-            anim.start();
+            anim.addFamAnimationListener(() -> {
+                getFloatingActionMenuMainButton().setVisibility(View.GONE);
+                switchChildrenVisibility(GONE);
+            });
+            anim.setDuration(50).start();
         }
     }
 
@@ -214,45 +230,27 @@ public class FloatingActionMenu extends ViewGroup {
                 final int childBottom = childTop + childHeight;
                 final int childLeft = (parentWidth - childWidth) / 2;
                 final int childRight = childLeft + childWidth;
-                Log.v(TAG, String.format("Layout child %s: left=%s, top=%s, right=%s, bottom=%s", i, childLeft, childTop, childRight, childBottom));
+                Log.v(TAG, String.format("Layout child button %s: left=%s, top=%s, right=%s, bottom=%s", i, childLeft, childTop, childRight, childBottom));
 
                 child.layout(childLeft, childTop, childRight, childBottom);
 
                 stackedHeight = stackedHeight - (childHeight + childSpacing);
             }
         }
-        /*
-        if (mMenuState == MENU_STATE_COLLAPSED) {
-            for (int i = 0; i < getChildCount(); i++) {
-                final View child = getChildAt(i);
-
-                if (!child.equals(floatingActionMenuMainButton)) {
-                    final int childHeight = child.getMeasuredHeight();
-                    final int childWidth = child.getMeasuredWidth();
-
-                    final int childTop = parentHeight - childHeight;
-                    final int childBottom = parentHeight;
-                    final int childLeft = (parentWidth - childWidth) / 2;
-                    final int childRight = childLeft + childWidth;
-
-                    Log.v(TAG, String.format("Layout child %s: left=%s, top=%s, right=%s, bottom=%s", i, childLeft, childTop, childRight, childBottom));
-
-                    child.layout(childLeft, childTop, childRight, childBottom);
-                }
-            }
-        }
-        */
     }
 
     private void layoutFam(int parentWidth, int parentHeight){
-        final int famWidth = floatingActionMenuMainButton.getMeasuredWidth();
-        final int famHeight = floatingActionMenuMainButton.getMeasuredHeight();
+        if(floatingActionMenuMainButton.getVisibility() != View.GONE) {
+            final int famWidth = floatingActionMenuMainButton.getMeasuredWidth();
+            final int famHeight = floatingActionMenuMainButton.getMeasuredHeight();
 
-        final int famTop = parentHeight - famHeight;
-        final int famBottom = famTop + famHeight;
-        final int famLeft = (parentWidth - famWidth) / 2;
-        final int famRight = famLeft + famWidth;
-        floatingActionMenuMainButton.layout(famLeft, famTop, famRight, famBottom);
+            final int famTop = parentHeight - famHeight;
+            final int famBottom = famTop + famHeight;
+            final int famLeft = (parentWidth - famWidth) / 2;
+            final int famRight = famLeft + famWidth;
+            Log.v(TAG, String.format("Layout main button: left=%s, top=%s, right=%s, bottom=%s", famLeft, famTop, famRight, famBottom));
+            floatingActionMenuMainButton.layout(famLeft, famTop, famRight, famBottom);
+        }
     }
 
     @Override
@@ -366,9 +364,9 @@ public class FloatingActionMenu extends ViewGroup {
         @Override
         public void onNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionMenu child, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
             if(dyConsumed > 0){
-                child.fadeOut();
+                child.hide();
             } else if (dyConsumed < 0) {
-                child.fadeIn();
+                child.show();
             }
         }
     }

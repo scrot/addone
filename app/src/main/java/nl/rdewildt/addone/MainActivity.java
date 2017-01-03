@@ -27,6 +27,7 @@ import java.io.File;
 import nl.rdewildt.addone.fam.FloatingActionMenu;
 import nl.rdewildt.addone.model.Bonus;
 import nl.rdewildt.addone.model.Counter;
+import nl.rdewildt.addone.model.Goal;
 import nl.rdewildt.addone.settings.SettingsActivity;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 

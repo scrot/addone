@@ -8,6 +8,6 @@ import nl.rdewildt.addone.fam.FloatingActionMenu;
 
 public class FadeIn extends Fade {
     public FadeIn(FloatingActionMenu floatingActionMenu) {
-        super(floatingActionMenu, 0.0f, 1.0f, 1000);
+        super(floatingActionMenu, 0.0f, 1.0f);
     }
 }

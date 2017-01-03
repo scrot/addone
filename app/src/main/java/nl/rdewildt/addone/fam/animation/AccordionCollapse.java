@@ -7,8 +7,8 @@ import nl.rdewildt.addone.fam.FloatingActionMenu;
  */
 
 //TODO Superclass for collapse and expansion?
-public class WellBucketsCollapse extends WellBuckets {
-    public WellBucketsCollapse(FloatingActionMenu floatingActionMenu) {
+public class AccordionCollapse extends Accordion {
+    public AccordionCollapse(FloatingActionMenu floatingActionMenu) {
         super(floatingActionMenu, 135, 0, DIRECTION_DOWN);
     }
 }

@@ -16,7 +16,7 @@ import nl.rdewildt.addone.fam.FloatingActionMenu;
 public abstract class FamAnimation {
     static final int ANIM_DURATION = 600;
     static final Interpolator ANIM_MAIN_INTERPOLATOR = new LinearInterpolator();
-    static final Interpolator ANIM_CHILD_INTERPOLATOR = new OvershootInterpolator();
+    static final Interpolator ANIM_CHILD_INTERPOLATOR = new LinearInterpolator();
 
     private FloatingActionMenu floatingActionMenu;
     private List<FamAnimationListener> famAnimationListeners;

@@ -1,5 +1,7 @@
 package nl.rdewildt.addone.fam.animation;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.view.View;
@@ -15,11 +17,11 @@ public abstract class Fade extends FamAnimation {
     private final float toA;
     private int mDuration;
 
-    public Fade(FloatingActionMenu floatingActionMenu, float fromA, float toA, int duration) {
+    public Fade(FloatingActionMenu floatingActionMenu, float fromA, float toA) {
         super(floatingActionMenu);
         this.fromA = fromA;
         this.toA = toA;
-        this.mDuration = duration;
+        this.mDuration = getDuration();
 
     }
 
@@ -30,6 +32,13 @@ public abstract class Fade extends FamAnimation {
             final View child = getFloatingActionMenu().getChildAt(i);
             animatorSet.play(ObjectAnimator.ofFloat(child, "alpha", fromA, toA));
         }
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                onFamAnimationFinished();
+            }
+        });
         animatorSet.setDuration(mDuration);
         animatorSet.start();
     }

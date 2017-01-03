@@ -11,6 +11,6 @@ import nl.rdewildt.addone.fam.FloatingActionMenu;
 
 public class FadeOut extends Fade {
     public FadeOut(FloatingActionMenu floatingActionMenu) {
-        super(floatingActionMenu, 1.0f, 0.0f, 1000);
+        super(floatingActionMenu, 1.0f, 0.0f);
     }
 }
