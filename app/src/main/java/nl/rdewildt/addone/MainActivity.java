@@ -49,9 +49,14 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        FloatingActionMenu fam = (FloatingActionMenu) findViewById(R.id.fam);
+        fam.setOnClickListener(this::addOne);
+
         setupCounter();
         setupSubCounter();
         setupGoals();
+
+        statsController.addBonus(new Bonus("hoi", 3, 1));
 
         // Open Reminder dialog
         /*if(statsController.isNewCycle()){
@@ -138,9 +143,6 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
-
-        FloatingActionMenu fam = (FloatingActionMenu) findViewById(R.id.fam);
-        fam.setOnClickListener(this::addOne);
     }
 
     public void addOne(View view){
@@ -149,6 +151,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void addNewGoal(View view){
         Intent intent = new Intent(this, AddGoalActivity.class);
+        intent.putExtra("STATS_PATH", this.statspath.toString());
+        startActivityForResult(intent, 1);
+    }
+
+    public void manageBonuses(View view){
+        Intent intent = new Intent(this, ManageBonusesActivity.class);
         intent.putExtra("STATS_PATH", this.statspath.toString());
         startActivityForResult(intent, 1);
     }

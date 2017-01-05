@@ -25,6 +25,8 @@
     <string name="goal_description">Goal description</string>
     <string name="goal_points_needed">Points required</string>
     <string name="add_goal_button">Add</string>
+    <string name="reward">Reward</string>
+    <string name="points_needed">Points needed</string>
 
 
 </resources>

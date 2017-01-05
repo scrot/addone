@@ -31,7 +31,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity android:name=".AddGoalActivity" />
-        <activity android:name=".ManageGoalsActivity"></activity>
+        <activity android:name=".ManageBonusesActivity"></activity>
     </application>
 
 </manifest>

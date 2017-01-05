@@ -59,7 +59,7 @@ public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHold
         Goal goal = goals.get(position);
         holder.getTitle().setText(goal.getName());
         holder.getSummary().setText(goal.getSummary());
-        holder.getGoal().setText(String.format(Locale.ENGLISH, "%1$d", goal.getRequiredPoints()));
+        holder.getGoal().setText(String.valueOf(goal.getRequiredPoints()));
     }
 
     @Override
