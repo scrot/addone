@@ -73,6 +73,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
+        addone:fam_menu_state="collapse"
         addone:fam_long_press="true"
         addone:fam_size="56dp"
         addone:fam_icon_size="28dp">

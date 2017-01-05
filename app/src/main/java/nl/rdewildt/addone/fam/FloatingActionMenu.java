@@ -34,11 +34,18 @@ public class FloatingActionMenu extends ViewGroup {
     public static final int MENU_STATE_COLLAPSED = 2;
     public static final int MENU_STATE_EXPANDED = 3;
 
-    private int mMenuState = MENU_STATE_COLLAPSED;
+    private int mMenuState = MENU_STATE_NONE;
     private int mPrevMenuState = MENU_STATE_NONE;
 
+    private int mRestoredMenuState = MENU_STATE_NONE;
+    private int mRestoredPrevMenuState = MENU_STATE_NONE;
+
     // Animations
-    public static final int ANIM_DURATION = 600;
+    public static final int COLLAPSE_ANIM_DURATION = 600;
+    public static final int EXPAND_ANIM_DURATION = 600;
+    public static final int FADE_IN_ANIM_DURATION = 600;
+    public static final int FADE_OUT_ANIM_DURATION = 600;
+
 
     // Animation Factory
     static final FamAnimationFactory mAnimFactory = new DefaultFamAnimationFactory();
@@ -66,13 +73,19 @@ public class FloatingActionMenu extends ViewGroup {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.FloatingActionMenu);
-        this.childSpacing = array.getDimensionPixelSize(R.styleable.FloatingActionMenu_fam_menu_spacing, DpConverter.dpToPx(8));
-        this.mLongPressMenuToggle = array.getBoolean(R.styleable.FloatingActionMenu_fam_long_press, false);
+        try {
+            this.mRestoredMenuState = array.getInteger(R.styleable.FloatingActionMenu_fam_menu_state, mMenuState);
+            this.childSpacing = array.getDimensionPixelSize(R.styleable.FloatingActionMenu_fam_menu_spacing, DpConverter.dpToPx(8));
+            this.mLongPressMenuToggle = array.getBoolean(R.styleable.FloatingActionMenu_fam_long_press, false);
+            this.mSize = array.getDimensionPixelSize(R.styleable.FloatingActionMenu_fam_size, DpConverter.dpToPx(56));
+            this.mIcon = array.getDrawable(R.styleable.FloatingActionMenu_fam_icon_src);
+            this.mIconSize = array.getDimensionPixelSize(R.styleable.FloatingActionMenu_fam_icon_size, DpConverter.dpToPx(24));
+        } finally {
+            array.recycle();
+            Log.v(TAG, "Restored styled attributes");
+        }
 
-        this.mSize = array.getDimensionPixelSize(R.styleable.FloatingActionMenu_fam_size, DpConverter.dpToPx(56));
-        this.mIcon = array.getDrawable(R.styleable.FloatingActionMenu_fam_icon_src);
-        this.mIconSize = array.getDimensionPixelSize(R.styleable.FloatingActionMenu_fam_icon_size, DpConverter.dpToPx(24));
-        array.recycle();
+        addOnLayoutChangeListener((view, i, i1, i2, i3, i4, i5, i6, i7) -> restoreMenu());
     }
 
     public FloatingActionMenuButton getFloatingActionMenuMainButton() {
@@ -86,22 +99,6 @@ public class FloatingActionMenu extends ViewGroup {
     @Override
     protected void onFinishInflate() {
         addMainFloatingActionButton();
-        if(mMenuState == MENU_STATE_COLLAPSED) {
-            positionChildren();
-        }
-    }
-
-    private void positionChildren() {
-        measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
-        int pos = getFloatingActionMenuMainButton().getMeasuredHeight() + getChildSpacing();
-        for (int i = 0; i < getChildCount(); i++) {
-            final View child = getChildAt(i);
-            if (!child.equals(getFloatingActionMenuMainButton())) {
-                child.setTranslationY(pos);
-                child.setVisibility(View.GONE);
-                pos += child.getMeasuredHeight() + getChildSpacing();
-            }
-        }
     }
 
     private void addMainFloatingActionButton(){
@@ -110,58 +107,93 @@ public class FloatingActionMenu extends ViewGroup {
         //Set fam expand/collapse animation
         floatingActionMenuMainButton.setOnLongClickListener(view -> {
             if(mMenuState == MENU_STATE_EXPANDED){
-                collapse();
+                collapse(false);
             }
             else if (mMenuState == MENU_STATE_COLLAPSED){
-                expand();
+                expand(false);
             }
             return true;
         });
 
         addView(floatingActionMenuMainButton, super.generateDefaultLayoutParams());
+        Log.v(TAG, "Main floating action button added to menu");
     }
 
-    public void collapse() {
-        if(mMenuState == MENU_STATE_EXPANDED) {
+    public void collapse(boolean instant) {
+        if(mMenuState != MENU_STATE_COLLAPSED) {
             mMenuState = MENU_STATE_COLLAPSED;
             FamAnimation anim = mAnimFactory.collapse(this);
-            anim.addFamAnimationListener(() -> switchChildrenVisibility(GONE));
-            anim.start();
+            anim.addFamAnimationListener(new FamAnimation.FamAnimationListener() {
+                @Override
+                public void onStart() {}
+
+                @Override
+                public void onEnd() {
+                    switchChildrenVisibility(View.GONE);
+                }
+            });
+            anim.setDuration(instant ? 0 : COLLAPSE_ANIM_DURATION).start();
+            Log.v(TAG, "Started collapse animation");
         }
     }
 
-    public void expand() {
-        if(mMenuState == MENU_STATE_COLLAPSED) {
+    public void expand(boolean instant) {
+        if(mMenuState != MENU_STATE_EXPANDED) {
             mMenuState = MENU_STATE_EXPANDED;
-            switchChildrenVisibility(View.VISIBLE);
             FamAnimation anim = mAnimFactory.expand(this);
-            anim.start();
+            anim.addFamAnimationListener(new FamAnimation.FamAnimationListener() {
+                @Override
+                public void onStart() {
+                    switchChildrenVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onEnd() {}
+            });
+            anim.setDuration(instant ? 0 : EXPAND_ANIM_DURATION).start();
+            Log.v(TAG, "Started expand animation");
         }
+        requestLayout();
     }
 
-    public void show(){
+    public void show(boolean instant){
         if(mMenuState == MENU_STATE_HIDDEN) {
             mMenuState = mPrevMenuState;
-            getFloatingActionMenuMainButton().setVisibility(View.VISIBLE);
-            if(mMenuState == MENU_STATE_EXPANDED){
-                switchChildrenVisibility(View.VISIBLE);
-            }
             FamAnimation anim = mAnimFactory.show(this);
-            anim.setDuration(50).start();
+            anim.addFamAnimationListener(new FamAnimation.FamAnimationListener() {
+                @Override
+                public void onStart() {
+                    getFloatingActionMenuMainButton().setVisibility(View.VISIBLE);
+                    if(mMenuState == MENU_STATE_EXPANDED){
+                        switchChildrenVisibility(View.VISIBLE);
+                    }
+                }
 
+                @Override
+                public void onEnd() {}
+            });
+            anim.setDuration(instant ? 0 : FADE_IN_ANIM_DURATION).start();
+            Log.v(TAG, "Started show animation");
         }
     }
 
-    public void hide(){
+    public void hide(boolean instant){
         if(mMenuState != MENU_STATE_HIDDEN) {
-            mPrevMenuState = mMenuState;
+            mPrevMenuState = mRestoredPrevMenuState != MENU_STATE_NONE ? mRestoredPrevMenuState : mMenuState;
             mMenuState = MENU_STATE_HIDDEN;
             FamAnimation anim = mAnimFactory.hide(this);
-            anim.addFamAnimationListener(() -> {
-                getFloatingActionMenuMainButton().setVisibility(View.GONE);
-                switchChildrenVisibility(GONE);
+            anim.addFamAnimationListener(new FamAnimation.FamAnimationListener() {
+                @Override
+                public void onStart() {}
+
+                @Override
+                public void onEnd() {
+                    getFloatingActionMenuMainButton().setVisibility(View.GONE);
+                    switchChildrenVisibility(GONE);
+                }
             });
-            anim.setDuration(50).start();
+            anim.setDuration(instant ? 0 : FADE_OUT_ANIM_DURATION).start();
+            Log.v(TAG, "Started hide animation");
         }
     }
 
@@ -172,6 +204,7 @@ public class FloatingActionMenu extends ViewGroup {
                 child.setVisibility(visibility);
             }
         }
+        Log.v(TAG, String.format("Children button visibility set to %s", visibilityToString(visibility)));
     }
 
     @Override
@@ -205,7 +238,7 @@ public class FloatingActionMenu extends ViewGroup {
         maxHeight = Math.max(maxHeight - childSpacing, getSuggestedMinimumHeight());
         maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 
-        Log.v(TAG, String.format("measure menu: height=%s, width=%s", maxHeight, maxWidth));
+        Log.v(TAG, String.format("Measure menu: height=%s, width=%s", maxHeight, maxWidth));
         setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, childState), resolveSizeAndState(maxHeight, heightMeasureSpec, childState));
     }
 
@@ -298,18 +331,44 @@ public class FloatingActionMenu extends ViewGroup {
     @Override
     protected Parcelable onSaveInstanceState() {
         Parcelable superState = super.onSaveInstanceState();
-        SavedState savedState = new SavedState(superState);
-        savedState.menuState = mMenuState;
-        savedState.prevMenuState = mPrevMenuState;
-        return  savedState;
+
+        SavedState ss = new SavedState(superState);
+
+        ss.menuState = mMenuState;
+        ss.prevMenuState = mPrevMenuState;
+
+        Log.v(TAG, String.format("Saved state: menustate=%s, prevmenustate=%s", menuStateToString(mMenuState), menuStateToString(mPrevMenuState)));
+        return  ss;
     }
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
+        if(!(state instanceof SavedState)){
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
-        mMenuState = ss.menuState;
-        mPrevMenuState = ss.prevMenuState;
+
+        mRestoredMenuState = ss.menuState;
+        mRestoredPrevMenuState = ss.prevMenuState;
+
+        Log.v(TAG, String.format("Restored state: menustate=%s, prevmenustate=%s", menuStateToString(mRestoredMenuState), menuStateToString(mRestoredPrevMenuState)));
+    }
+
+    private void restoreMenu(){
+        if(mRestoredMenuState == MENU_STATE_COLLAPSED) {
+            collapse(true);
+        }
+        else if (mRestoredMenuState == MENU_STATE_EXPANDED){
+            expand(true);
+        }
+        else if (mRestoredMenuState == MENU_STATE_HIDDEN){
+            hide(true);
+        }
+        mRestoredMenuState = MENU_STATE_NONE;
+        mRestoredPrevMenuState = MENU_STATE_NONE;
     }
 
     static class SavedState extends BaseSavedState {
@@ -364,9 +423,9 @@ public class FloatingActionMenu extends ViewGroup {
         @Override
         public void onNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionMenu child, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
             if(dyConsumed > 0){
-                child.hide();
+                child.hide(false);
             } else if (dyConsumed < 0) {
-                child.show();
+                child.show(false);
             }
         }
     }
@@ -380,6 +439,13 @@ public class FloatingActionMenu extends ViewGroup {
         else if(menuState == MENU_STATE_HIDDEN) return "hidden";
         else if(menuState == MENU_STATE_EXPANDED) return "expanded";
         else if(menuState == MENU_STATE_NONE) return "none";
-        else throw new InvalidParameterException("invalid menuState");
+        else return "invalid";
+    }
+
+    private String visibilityToString(int visibility){
+        if(visibility == View.VISIBLE) return "visible";
+        else if(visibility == View.INVISIBLE) return "invisible";
+        else if(visibility == View.GONE) return "gone";
+        else return "invalid";
     }
 }

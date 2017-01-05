@@ -2,7 +2,6 @@ package nl.rdewildt.addone.fam.animation;
 
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.OvershootInterpolator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ public abstract class FamAnimation {
     private FloatingActionMenu floatingActionMenu;
     private List<FamAnimationListener> famAnimationListeners;
 
-    private int duration;
+    private int duration = -1;
     private Interpolator mainInterpolator;
     private Interpolator childInterpolator;
 
@@ -32,26 +31,10 @@ public abstract class FamAnimation {
 
     public abstract void start();
 
+    public abstract void end();
+
     public FloatingActionMenu getFloatingActionMenu() {
         return floatingActionMenu;
-    }
-
-    /*
-     *  Fam Animation Listener
-     */
-
-    public interface FamAnimationListener{
-        void onFinished();
-    }
-
-    public void addFamAnimationListener(FamAnimationListener f){
-        famAnimationListeners.add(f);
-    }
-
-    public void onFamAnimationFinished(){
-        for(FamAnimationListener f : famAnimationListeners){
-            f.onFinished();
-        }
     }
 
     public FamAnimation setDuration(int duration){
@@ -60,7 +43,7 @@ public abstract class FamAnimation {
     }
 
     public int getDuration(){
-        return duration != 0 ? duration : ANIM_DURATION;
+        return duration != -1 ? duration : ANIM_DURATION;
     }
 
     public FamAnimation setMainInterpolator(Interpolator interpolator){
@@ -79,5 +62,30 @@ public abstract class FamAnimation {
 
     public Interpolator getChildInterpolator(){
         return childInterpolator != null ? childInterpolator : ANIM_CHILD_INTERPOLATOR;
+    }
+
+    /*
+     *  Fam Animation Listener
+     */
+
+    public interface FamAnimationListener{
+        void onStart();
+        void onEnd();
+    }
+
+    public void addFamAnimationListener(FamAnimationListener f){
+        famAnimationListeners.add(f);
+    }
+
+    public void onFamAnimationStart(){
+        for(FamAnimationListener f : famAnimationListeners){
+            f.onStart();
+        }
+    }
+
+    public void onFamAnimationEnd(){
+        for(FamAnimationListener f : famAnimationListeners){
+            f.onEnd();
+        }
     }
 }

@@ -17,6 +17,8 @@ public abstract class Accordion extends FamAnimation {
     public static final int DIRECTION_DOWN = 0;
     public static final int DIRECTION_UP = 1;
 
+    private AnimatorSet animatorSet;
+
     private final int rotateFrom;
     private final int rotateTo;
     private final int translateDirection;
@@ -34,12 +36,18 @@ public abstract class Accordion extends FamAnimation {
         animate(rotateFrom, rotateTo, translateDirection);
     }
 
+    @Override
+    public void end() {
+        if(animatorSet != null){
+            animatorSet.end();
+        }
+    }
+
     private void animate(int rotateFrom, int rotateTo, int translateDirection){
-        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet = new AnimatorSet();
         int count = getFloatingActionMenu().getChildCount();
         int spacing = getFloatingActionMenu().getChildSpacing();
         FloatingActionMenuButton main = getFloatingActionMenu().getFloatingActionMenuMainButton();
-
         //animate main button
         animatorSet.play(centeredRotation(main, rotateFrom, rotateTo, getDuration()));
 
@@ -61,9 +69,15 @@ public abstract class Accordion extends FamAnimation {
 
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+                onFamAnimationStart();
+            }
+
+            @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                onFamAnimationFinished();
+                onFamAnimationEnd();
             }
         });
 

@@ -13,33 +13,46 @@ import nl.rdewildt.addone.fam.FloatingActionMenu;
  */
 
 public abstract class Fade extends FamAnimation {
+    private AnimatorSet animatorSet;
+
     private final float fromA;
     private final float toA;
-    private int mDuration;
 
     public Fade(FloatingActionMenu floatingActionMenu, float fromA, float toA) {
         super(floatingActionMenu);
         this.fromA = fromA;
         this.toA = toA;
-        this.mDuration = getDuration();
 
     }
 
     @Override
     public void start() {
-        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet = new AnimatorSet();
         for (int i = 0; i < getFloatingActionMenu().getChildCount(); i++) {
             final View child = getFloatingActionMenu().getChildAt(i);
             animatorSet.play(ObjectAnimator.ofFloat(child, "alpha", fromA, toA));
         }
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+                onFamAnimationStart();
+            }
+
+            @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                onFamAnimationFinished();
+                onFamAnimationEnd();
             }
         });
-        animatorSet.setDuration(mDuration);
+        animatorSet.setDuration(getDuration());
         animatorSet.start();
+    }
+
+    @Override
+    public void end() {
+        if(animatorSet != null){
+            animatorSet.end();
+        }
     }
 }
