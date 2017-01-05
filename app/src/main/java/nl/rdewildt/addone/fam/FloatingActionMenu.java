@@ -121,7 +121,6 @@ public class FloatingActionMenu extends ViewGroup {
 
     public void collapse(boolean instant) {
         if(mMenuState != MENU_STATE_COLLAPSED) {
-            mMenuState = MENU_STATE_COLLAPSED;
             FamAnimation anim = mAnimFactory.collapse(this);
             anim.addFamAnimationListener(new FamAnimation.FamAnimationListener() {
                 @Override
@@ -133,13 +132,13 @@ public class FloatingActionMenu extends ViewGroup {
                 }
             });
             anim.setDuration(instant ? 0 : COLLAPSE_ANIM_DURATION).start();
+            mMenuState = MENU_STATE_COLLAPSED;
             Log.v(TAG, "Started collapse animation");
         }
     }
 
     public void expand(boolean instant) {
         if(mMenuState != MENU_STATE_EXPANDED) {
-            mMenuState = MENU_STATE_EXPANDED;
             FamAnimation anim = mAnimFactory.expand(this);
             anim.addFamAnimationListener(new FamAnimation.FamAnimationListener() {
                 @Override
@@ -151,6 +150,7 @@ public class FloatingActionMenu extends ViewGroup {
                 public void onEnd() {}
             });
             anim.setDuration(instant ? 0 : EXPAND_ANIM_DURATION).start();
+            mMenuState = MENU_STATE_EXPANDED;
             Log.v(TAG, "Started expand animation");
         }
         requestLayout();
@@ -158,15 +158,12 @@ public class FloatingActionMenu extends ViewGroup {
 
     public void show(boolean instant){
         if(mMenuState == MENU_STATE_HIDDEN) {
-            mMenuState = mPrevMenuState;
             FamAnimation anim = mAnimFactory.show(this);
             anim.addFamAnimationListener(new FamAnimation.FamAnimationListener() {
                 @Override
                 public void onStart() {
-                    getFloatingActionMenuMainButton().setVisibility(View.VISIBLE);
-                    if(mMenuState == MENU_STATE_EXPANDED){
-                        switchChildrenVisibility(View.VISIBLE);
-                    }
+                    mRestoredMenuState = mPrevMenuState;
+                    restoreMenu();
                 }
 
                 @Override
@@ -180,19 +177,18 @@ public class FloatingActionMenu extends ViewGroup {
     public void hide(boolean instant){
         if(mMenuState != MENU_STATE_HIDDEN) {
             mPrevMenuState = mRestoredPrevMenuState != MENU_STATE_NONE ? mRestoredPrevMenuState : mMenuState;
-            mMenuState = MENU_STATE_HIDDEN;
             FamAnimation anim = mAnimFactory.hide(this);
             anim.addFamAnimationListener(new FamAnimation.FamAnimationListener() {
                 @Override
-                public void onStart() {}
+                public void onStart() {
+                }
 
                 @Override
                 public void onEnd() {
-                    getFloatingActionMenuMainButton().setVisibility(View.GONE);
-                    switchChildrenVisibility(GONE);
                 }
             });
             anim.setDuration(instant ? 0 : FADE_OUT_ANIM_DURATION).start();
+            mMenuState = MENU_STATE_HIDDEN;
             Log.v(TAG, "Started hide animation");
         }
     }
