@@ -14,7 +14,7 @@ public class Bonus implements Comparable<Bonus> {
     private Integer reward;
 
     public Bonus() {
-        this.name = null;
+        this.name = "Default";
         this.points = 1;
         this.reward = 1;
     }

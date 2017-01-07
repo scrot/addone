@@ -10,12 +10,7 @@ import java.util.List;
 
 public class BinarySearch {
 
-    public static<T extends Comparable<T>> int binaryInsertIndex(T x, Collection<T> xs){
-        List<T> xsList = new ArrayList<>(xs);
-        return binaryInsertIndex(x, xsList);
-    }
-
-    private static <T extends Comparable<T>> int binaryInsertIndex(T x, List<T> xs){
+    public static <T extends Comparable<T>> int binaryInsertIndex(T x, List<T> xs){
         if(xs.isEmpty()){
             return 0;
         }
@@ -44,12 +39,7 @@ public class BinarySearch {
         }
     }
 
-    public static<T extends Comparable<T>> int binarySearchClosestIndex(T x, Collection<T> xs){
-        List<T> xsList = new ArrayList<>(xs);
-        return binarySearchClosestIndex(x, xsList);
-    }
-
-    private static <T extends Comparable<T>> int binarySearchClosestIndex(T key, List<T> a) {
+    public static <T extends Comparable<T>> int binarySearchClosestIndex(T key, List<T> a) {
         if(a.isEmpty()){
             return -1;
         }

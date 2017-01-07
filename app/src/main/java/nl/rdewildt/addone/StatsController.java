@@ -4,9 +4,9 @@ import org.joda.time.DateTime;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
-import java.util.SortedSet;
+import java.util.Stack;
 
 import nl.rdewildt.addone.helper.BinarySearch;
 import nl.rdewildt.addone.model.Bonus;
@@ -25,6 +25,9 @@ public class StatsController {
     private File statspath;
 
     private CounterUpdater counterUpdater;
+
+    private Stack<Goal> relevantGoals;
+    private Stack<Bonus> releventBonuses;
 
     private List<CounterListener> counterChangedListeners;
     private List<GoalsListener> goalsChangedListeners;
@@ -52,14 +55,35 @@ public class StatsController {
 
     public StatsController(File statspath, CounterUpdater counterUpdater){
         this.statspath = statspath;
-        stats = new Stats(statspath);
+        this.stats = new Stats(statspath);
 
         this.counterUpdater = counterUpdater;
         counterUpdater.setCounter(getCounter());
 
-        counterChangedListeners = new ArrayList<>();
-        goalsChangedListeners  = new ArrayList<>();
-        bonusesChangedListeners = new ArrayList<>();
+        this.counterChangedListeners = new ArrayList<>();
+        this.goalsChangedListeners  = new ArrayList<>();
+        this.bonusesChangedListeners = new ArrayList<>();
+
+        this.relevantGoals = buildRelevantGoals();
+        addGoalsChangedListeners(new GoalsListener() {
+            @Override
+            public void onGoalAdded(Integer position) {
+                buildRelevantBonuses();
+            }
+
+            @Override
+            public void onGoalRemoved(Integer position) {
+                buildRelevantBonuses();
+            }
+
+            @Override
+            public void onGoalsChanged() {
+                buildRelevantBonuses();
+            }
+        });
+
+        this.releventBonuses = buildRelevantBonuses();
+        addBonusesChangedListener(() -> releventBonuses = buildRelevantBonuses());
     }
 
     /*
@@ -67,7 +91,8 @@ public class StatsController {
      */
 
     public void increaseCounter() {
-        counterUpdater.increaseCounter(getNextRelevantBonus(getCounter().getSubValue()));
+        counterUpdater.increaseCounter(getRelevantBonus());
+        syncRelevantBonuses();
         stats.writeStats();
         notifyCounterValueChanged();
         notifySubCounterValueChanged();
@@ -148,8 +173,26 @@ public class StatsController {
         }
     }
 
-    public void setGoalsChangedListeners(GoalsListener f){
+    public void addGoalsChangedListeners(GoalsListener f){
         goalsChangedListeners.add(f);
+    }
+
+    private Stack<Goal> buildRelevantGoals(){
+        Stack<Goal> stack = new Stack<>();
+        List<Goal> goals = getGoals();
+        Collections.sort(goals, (x, y) -> y.compareTo(x));
+        for(Goal goal : goals){
+            if(goal.getRequiredPoints() > getCounter().getValue()){
+                stack.push(goal);
+            }
+        }
+        return stack;
+    }
+
+    private void syncRelevantGoals(){
+        if(!buildRelevantGoals().empty() && getCounter().getValue() > buildRelevantGoals().peek().getRequiredPoints()){
+            buildRelevantGoals().pop();
+        }
     }
 
     /*
@@ -172,18 +215,6 @@ public class StatsController {
         }
     }
 
-    public Bonus getNextRelevantBonus(Integer key){
-        Iterator<Bonus> it = getBonuses().iterator();
-
-        int points = -1;
-        Bonus elem = null;
-        while(it.hasNext() && key >= points){
-            elem = it.next();
-            points = elem.getPoints();
-        }
-        return elem;
-    }
-
     public void notifyBonusChanged() {
         for(BonusesListener bonusesListener : bonusesChangedListeners){
             bonusesListener.onBonusChanged();
@@ -194,8 +225,34 @@ public class StatsController {
         bonusesChangedListeners.add(f);
     }
 
-    public SortedSet<Bonus> getBonuses(){
+    public List<Bonus> getBonuses(){
         return stats.getBonuses();
+    }
+
+    public Bonus getRelevantBonus(){
+        return releventBonuses.empty() ? null : releventBonuses.peek();
+    }
+
+    private Stack<Bonus> buildRelevantBonuses(){
+        Stack<Bonus> stack = new Stack<>();
+        List<Bonus> bonuses = getBonuses();
+        Collections.sort(bonuses, (x, y) -> y.compareTo(x));
+        for(Bonus bonus : bonuses){
+            if(stack.empty() || bonus.getPoints() > getCounter().getSubValue()){
+                stack.push(bonus);
+            }
+        }
+        return stack;
+    }
+
+    private void syncRelevantBonuses(){
+        if(releventBonuses.size() > 1) {
+            int sub = getCounter().getSubValue();
+            Bonus bonus = getRelevantBonus();
+            if (sub >= bonus.getPoints()) {
+                releventBonuses.pop();
+            }
+        }
     }
 
     /*

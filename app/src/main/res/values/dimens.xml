@@ -3,6 +3,8 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="subcounter_horizontal_margin">4dp</dimen>
-    <dimen name="bonus_item_sub_text_size">20sp</dimen>
+
+    <dimen name="bonus_item_sub_text_size">16sp</dimen>
+    <dimen name="bonus_item_sub_text_end_margin">6dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 </resources>

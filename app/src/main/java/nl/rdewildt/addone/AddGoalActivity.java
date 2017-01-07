@@ -46,6 +46,7 @@ public class AddGoalActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //TODO Check for empty fields
     public void addGoal(View view){
         StatsController statsController = new StatsController(statspath);
         statsController.addGoal(new Goal(goalName.getText().toString(),

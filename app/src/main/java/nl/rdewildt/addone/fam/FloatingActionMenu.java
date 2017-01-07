@@ -41,10 +41,10 @@ public class FloatingActionMenu extends ViewGroup {
     private int mRestoredPrevMenuState = MENU_STATE_NONE;
 
     // Animations
-    public static final int COLLAPSE_ANIM_DURATION = 600;
-    public static final int EXPAND_ANIM_DURATION = 600;
-    public static final int FADE_IN_ANIM_DURATION = 600;
-    public static final int FADE_OUT_ANIM_DURATION = 600;
+    public static final int COLLAPSE_ANIM_DURATION = 150;
+    public static final int EXPAND_ANIM_DURATION = 150;
+    public static final int FADE_IN_ANIM_DURATION = 300;
+    public static final int FADE_OUT_ANIM_DURATION = 300;
 
 
     // Animation Factory

@@ -27,14 +27,14 @@ public class Stats {
 
     private Counter counter;
     private List<Goal> goals;
-    private SortedSet<Bonus> bonuses;
+    private List<Bonus> bonuses;
 
     public Stats(File statspath){
         this.statspath = statspath;
 
         this.counter = new Counter();
         this.goals = new ArrayList<>();
-        this.bonuses = new TreeSet<>();
+        this.bonuses = new ArrayList<>();
 
         this.bonuses.add(new Bonus());
 
@@ -62,11 +62,11 @@ public class Stats {
         this.goals = goals;
     }
 
-    public SortedSet<Bonus> getBonuses() {
+    public List<Bonus> getBonuses() {
         return bonuses;
     }
 
-    public void setBonuses(SortedSet<Bonus> bonuses) {
+    public void setBonuses(List<Bonus> bonuses) {
         this.bonuses = bonuses;
     }
 

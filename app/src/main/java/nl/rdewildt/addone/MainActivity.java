@@ -27,7 +27,6 @@ import java.io.File;
 import nl.rdewildt.addone.fam.FloatingActionMenu;
 import nl.rdewildt.addone.model.Bonus;
 import nl.rdewildt.addone.model.Counter;
-import nl.rdewildt.addone.model.Goal;
 import nl.rdewildt.addone.settings.SettingsActivity;
 import nl.rdewildt.addone.updater.WeeklyCounterUpdater;
 
@@ -103,13 +102,15 @@ public class MainActivity extends AppCompatActivity {
         subCounterView = (LinearLayout) findViewById(R.id.subcounter);
         subCounterView.removeAllViews();
 
-        Bonus relevantBonus = statsController.getNextRelevantBonus(statsController.getCounter().getSubValue());
-        for(int i = 1; i <= relevantBonus.getPoints(); i++){
-            ImageView subCounterItem = (ImageView) getLayoutInflater().inflate(R.layout.sub_counter_item, null);
-            if(i <= statsController.getCounter().getSubValue()){
-                subCounterItem.setColorFilter(getResources().getColor(R.color.colorAccent, null));
+        Bonus relevantBonus = statsController.getRelevantBonus();
+        if(relevantBonus != null) {
+            for (int i = 1; i <= relevantBonus.getPoints(); i++) {
+                ImageView subCounterItem = (ImageView) getLayoutInflater().inflate(R.layout.sub_counter_item, null);
+                if (i <= statsController.getCounter().getSubValue()) {
+                    subCounterItem.setColorFilter(getResources().getColor(R.color.colorAccent, null));
+                }
+                subCounterView.addView(subCounterItem);
             }
-            subCounterView.addView(subCounterItem);
         }
     }
 
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
         goalsView.setAdapter(adapter);
 
         // Set listeners
-        statsController.setGoalsChangedListeners(new StatsController.GoalsListener() {
+        statsController.addGoalsChangedListeners(new StatsController.GoalsListener() {
             @Override
             public void onGoalAdded(Integer position) {
                 adapter.notifyItemInserted(position);
