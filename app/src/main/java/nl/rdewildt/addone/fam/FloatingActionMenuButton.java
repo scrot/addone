@@ -17,32 +17,31 @@ import nl.rdewildt.addone.helper.DpConverter;
  */
 
 public class FloatingActionMenuButton extends ImageButton {
-    private int mSize;
-    private Drawable mIcon;
-    private int mIconSize;
-
-    public FloatingActionMenuButton(Context context) {
-        super(context);
-    }
+    private int sizes;
+    private Drawable icon;
+    private int iconSize;
+    private String label;
+    //TODO add label bg color
+    //TODO add label text color
 
     public FloatingActionMenuButton(Context context, int size, Drawable icon, int iconSize){
         super(context);
-        this.mSize = size;
-        this.mIcon = icon;
-        this.mIconSize = iconSize;
+        this.sizes = size;
+        this.icon = icon;
+        this.iconSize = iconSize;
         initialize();
+    }
+
+    public FloatingActionMenuButton(Context context) {
+        this(context, null);
     }
 
     public FloatingActionMenuButton(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        setAttributes(context, attrs);
-        initialize();
+        this(context, attrs, 0);
     }
 
     public FloatingActionMenuButton(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        setAttributes(context, attrs);
-        initialize();
+        this(context, attrs, defStyleAttr, 0);
     }
 
     public FloatingActionMenuButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -61,11 +60,32 @@ public class FloatingActionMenuButton extends ImageButton {
         setPadding(0,0,0,0);
     }
 
+    public int getSize() {
+        return sizes;
+    }
+
+    public Drawable getIcon() {
+        return icon;
+    }
+
+    public int getIconSize() {
+        return iconSize;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public boolean hasLabel() {
+        return label != null && !label.equals("");
+    }
+
     private void setAttributes(Context context, AttributeSet attrs){
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FloatingActionMenuButton);
-        this.mSize = a.getDimensionPixelSize(R.styleable.FloatingActionMenuButton_famb_size, DpConverter.dpToPx(56));
-        this.mIcon = a.getDrawable(R.styleable.FloatingActionMenuButton_famb_icon_src);
-        this.mIconSize = a.getDimensionPixelSize(R.styleable.FloatingActionMenuButton_famb_icon_size, 0);
+        this.sizes = a.getDimensionPixelSize(R.styleable.FloatingActionMenuButton_famb_size, DpConverter.dpToPx(56));
+        this.icon = a.getDrawable(R.styleable.FloatingActionMenuButton_famb_icon_src);
+        this.iconSize = a.getDimensionPixelSize(R.styleable.FloatingActionMenuButton_famb_icon_size, 0);
+        this.label = a.getString(R.styleable.FloatingActionMenuButton_famb_label);
         a.recycle();
     }
 
@@ -74,22 +94,22 @@ public class FloatingActionMenuButton extends ImageButton {
     }
 
     private Drawable getFabIcon(){
-        if(mIcon == null){
-            mIcon = ContextCompat.getDrawable(getContext(), R.drawable.fab_icon);
+        if(icon == null){
+            icon = ContextCompat.getDrawable(getContext(), R.drawable.fab_icon);
         }
-        return mIcon;
+        return icon;
     }
 
     private Drawable generateFabIcon(Drawable background, Drawable icon){
         LayerDrawable layerDrawable = mergeDrawables(background, icon);
 
         //Layout Background
-        layerDrawable.setLayerSize(0, mSize, mSize);
+        layerDrawable.setLayerSize(0, sizes, sizes);
         layerDrawable.setLayerGravity(0, Gravity.CENTER);
 
 
         //Layout Icon
-        layerDrawable.setLayerSize(1, mIconSize, mIconSize);
+        layerDrawable.setLayerSize(1, iconSize, iconSize);
         layerDrawable.setLayerGravity(1, Gravity.CENTER);
 
         return layerDrawable;

@@ -3,6 +3,9 @@ package nl.rdewildt.addone.fam;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.shapes.RectShape;
+import android.graphics.drawable.shapes.RoundRectShape;
+import android.graphics.drawable.shapes.Shape;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.design.widget.CoordinatorLayout;
@@ -11,8 +14,16 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import nl.rdewildt.addone.R;
 import nl.rdewildt.addone.fam.animation.FamAnimation;
@@ -46,9 +57,10 @@ public class FloatingActionMenu extends ViewGroup {
     public static final int FADE_IN_ANIM_DURATION = 300;
     public static final int FADE_OUT_ANIM_DURATION = 300;
 
-
-    // Animation Factory
     static final FamAnimationFactory mAnimFactory = new DefaultFamAnimationFactory();
+
+    // Labels
+    private Map<View, View> labels;
 
     // Attribute set
     private int childSpacing;
@@ -56,6 +68,7 @@ public class FloatingActionMenu extends ViewGroup {
     private int mSize;
     private Drawable mIcon;
     private int mIconSize;
+    //TODO add label spacing for FAM
 
     public FloatingActionMenu(Context context) {
         this(context,null);
@@ -85,6 +98,7 @@ public class FloatingActionMenu extends ViewGroup {
             Log.v(TAG, "Restored styled attributes");
         }
 
+        this.labels = new HashMap<>();
         addOnLayoutChangeListener((view, i, i1, i2, i3, i4, i5, i6, i7) -> restoreMenu());
     }
 
@@ -98,22 +112,46 @@ public class FloatingActionMenu extends ViewGroup {
 
     @Override
     protected void onFinishInflate() {
+        addLabels();
         addMainFloatingActionButton();
+    }
+
+    private void addLabels() {
+        int count = getChildCount();
+        for(int i = 0; i < count; i++){
+            FloatingActionMenuButton child = (FloatingActionMenuButton) getChildAt(i);
+            if(child.hasLabel()){
+                TextView label = new TextView(getContext());
+                label.setBackgroundResource(R.drawable.fab_label);
+                label.setText(child.getLabel());
+                labels.put(child, label);
+                addView(label);
+            }
+        }
     }
 
     private void addMainFloatingActionButton(){
         floatingActionMenuMainButton = new FloatingActionMenuButton(getContext(), mSize, mIcon, mIconSize);
 
         //Set fam expand/collapse animation
-        floatingActionMenuMainButton.setOnLongClickListener(view -> {
-            if(mMenuState == MENU_STATE_EXPANDED){
-                collapse(false);
-            }
-            else if (mMenuState == MENU_STATE_COLLAPSED){
-                expand(false);
-            }
-            return true;
-        });
+        if(mLongPressMenuToggle) {
+            floatingActionMenuMainButton.setOnLongClickListener(view -> {
+                if (mMenuState == MENU_STATE_EXPANDED) {
+                    collapse(false);
+                } else if (mMenuState == MENU_STATE_COLLAPSED) {
+                    expand(false);
+                }
+                return true;
+            });
+        } else {
+            floatingActionMenuMainButton.setOnClickListener(view -> {
+                if (mMenuState == MENU_STATE_EXPANDED) {
+                    collapse(false);
+                } else if (mMenuState == MENU_STATE_COLLAPSED) {
+                    expand(false);
+                }
+            });
+        }
 
         addView(floatingActionMenuMainButton, super.generateDefaultLayoutParams());
         Log.v(TAG, "Main floating action button added to menu");
@@ -219,14 +257,26 @@ public class FloatingActionMenu extends ViewGroup {
 
         for (int i = 0; i < getChildCount(); i++) {
             final View child = getChildAt(i);
-            if(child.getVisibility() != View.GONE) {
-                final LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+            if (child instanceof FloatingActionMenuButton) {
+                final View label = labels.get(child);
 
-                measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
+                if (child.getVisibility() != View.GONE) {
+                    final LayoutParams childLp = (LayoutParams) child.getLayoutParams();
+                    measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
 
-                maxWidth = Math.max(maxWidth, child.getMeasuredWidth() + layoutParams.leftMargin + layoutParams.rightMargin);
-                maxHeight += child.getMeasuredHeight() + layoutParams.topMargin + layoutParams.bottomMargin + childSpacing;
-                childState = combineMeasuredStates(childState, child.getMeasuredState());
+                    int labelWidth = 0;
+                    if (label != null) {
+                        final LayoutParams labelLp = (LayoutParams) label.getLayoutParams();
+                        measureChildWithMargins(label, widthMeasureSpec, 0, heightMeasureSpec, 0);
+                        labelWidth = labelLp.leftMargin + label.getMeasuredWidth() + labelLp.rightMargin;
+                    }
+
+                    int childWidth = childLp.leftMargin + child.getMeasuredWidth() + childLp.rightMargin;
+
+                    maxWidth = Math.max(maxWidth, childWidth + labelWidth);
+                    maxHeight += child.getMeasuredHeight() + childLp.topMargin + childLp.bottomMargin + childSpacing;
+                    childState = combineMeasuredStates(childState, child.getMeasuredState());
+                }
             }
         }
 
@@ -250,18 +300,30 @@ public class FloatingActionMenu extends ViewGroup {
         int stackedHeight = parentHeight - (floatingActionMenuMainButton.getMeasuredHeight() + childSpacing);
         for (int i = 0; i < getChildCount(); i++) {
             final View child = getChildAt(i);
+            final View label = labels.get(child);
 
-            if (!child.equals(floatingActionMenuMainButton) && child.getVisibility() != View.GONE) {
+            if (child instanceof FloatingActionMenuButton && !child.equals(floatingActionMenuMainButton) && child.getVisibility() != View.GONE) {
                 final int childWidth = child.getMeasuredWidth();
                 final int childHeight = child.getMeasuredHeight();
 
                 final int childTop = stackedHeight - childHeight;
                 final int childBottom = childTop + childHeight;
-                final int childLeft = (parentWidth - childWidth) / 2;
-                final int childRight = childLeft + childWidth;
+                final int childRight = parentWidth - childWidth + (getFloatingActionMenuMainButton().getMeasuredWidth() - childWidth) / 2; //TODO check rightpadding
+                final int childLeft = childRight - childWidth;
                 Log.v(TAG, String.format("Layout child button %s: left=%s, top=%s, right=%s, bottom=%s", i, childLeft, childTop, childRight, childBottom));
 
                 child.layout(childLeft, childTop, childRight, childBottom);
+
+                if(label != null) {
+                    final int labelWidth = label.getMeasuredWidth();
+                    final int labelHeight = label.getMeasuredHeight();
+
+                    final int labelTop = childTop + childHeight / 2 - labelHeight / 2;
+                    final int labelBottom = labelTop + labelHeight;
+                    final int labelRight = childLeft;
+                    final int labelLeft = labelRight - labelWidth;
+                    label.layout(labelLeft, labelTop, labelRight, labelBottom);
+                }
 
                 stackedHeight = stackedHeight - (childHeight + childSpacing);
             }
@@ -275,7 +337,7 @@ public class FloatingActionMenu extends ViewGroup {
 
             final int famTop = parentHeight - famHeight;
             final int famBottom = famTop + famHeight;
-            final int famLeft = (parentWidth - famWidth) / 2;
+            final int famLeft = parentWidth - famWidth;
             final int famRight = famLeft + famWidth;
             Log.v(TAG, String.format("Layout main button: left=%s, top=%s, right=%s, bottom=%s", famLeft, famTop, famRight, famBottom));
             floatingActionMenuMainButton.layout(famLeft, famTop, famRight, famBottom);

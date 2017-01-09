@@ -15,5 +15,6 @@
         <attr name="famb_size" format="dimension" />
         <attr name="famb_icon_src" format="integer" />
         <attr name="famb_icon_size" format="dimension" />
+        <attr name="famb_label" format="string" />
     </declare-styleable>
 </resources>
