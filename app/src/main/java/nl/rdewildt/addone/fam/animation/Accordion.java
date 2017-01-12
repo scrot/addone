@@ -13,7 +13,7 @@ import nl.rdewildt.addone.fam.FloatingActionMenuButton;
  * Created by roydewildt on 02/01/2017.
  */
 
-public abstract class Accordion extends FamAnimation {
+public class Accordion extends FamAnimation {
     public static final int DIRECTION_DOWN = 0;
     public static final int DIRECTION_UP = 1;
 

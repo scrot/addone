@@ -1,11 +1,9 @@
 package nl.rdewildt.addone.fam;
 
-import nl.rdewildt.addone.fam.animation.FadeIn;
-import nl.rdewildt.addone.fam.animation.FadeOut;
+import nl.rdewildt.addone.fam.animation.Accordion;
+import nl.rdewildt.addone.fam.animation.Fade;
 import nl.rdewildt.addone.fam.animation.FamAnimation;
 import nl.rdewildt.addone.fam.animation.FamAnimationFactory;
-import nl.rdewildt.addone.fam.animation.AccordionCollapse;
-import nl.rdewildt.addone.fam.animation.AccordionExpand;
 
 /**
  * Created by roydewildt on 02/01/2017.
@@ -14,21 +12,21 @@ import nl.rdewildt.addone.fam.animation.AccordionExpand;
 public class DefaultFamAnimationFactory implements FamAnimationFactory {
     @Override
     public FamAnimation show(FloatingActionMenu fam) {
-        return new FadeIn(fam);
+        return new Fade(fam, 0f, 1f);
     }
 
     @Override
     public FamAnimation hide(FloatingActionMenu fam) {
-        return new FadeOut(fam);
+        return new Fade(fam, 1f, 0f);
     }
 
     @Override
     public FamAnimation expand(FloatingActionMenu fam) {
-        return new AccordionExpand(fam);
+        return new Accordion(fam, 0, 135, Accordion.DIRECTION_UP);
     }
 
     @Override
     public FamAnimation collapse(FloatingActionMenu fam) {
-        return new AccordionCollapse(fam);
+        return new Accordion(fam, 135, 0, Accordion.DIRECTION_DOWN);
     }
 }

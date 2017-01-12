@@ -12,7 +12,7 @@ import nl.rdewildt.addone.fam.FloatingActionMenu;
  * Created by roydewildt on 02/01/2017.
  */
 
-public abstract class Fade extends FamAnimation {
+public class Fade extends FamAnimation {
     private AnimatorSet animatorSet;
 
     private final float fromA;
