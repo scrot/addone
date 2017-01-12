@@ -3,9 +3,6 @@ package nl.rdewildt.addone.fam;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.shapes.RectShape;
-import android.graphics.drawable.shapes.RoundRectShape;
-import android.graphics.drawable.shapes.Shape;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.design.widget.CoordinatorLayout;
@@ -14,15 +11,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import nl.rdewildt.addone.R;
@@ -68,7 +59,12 @@ public class FloatingActionMenu extends ViewGroup {
     private int mSize;
     private Drawable mIcon;
     private int mIconSize;
-    //TODO add label spacing for FAM
+    private int mLabelPaddingStart = DpConverter.dpToPx(8);
+    private int mLabelPaddingEnd = DpConverter.dpToPx(8);
+    private int mLabelPaddingTop = DpConverter.dpToPx(4);
+    private int mLabelPaddingBottom = DpConverter.dpToPx(4);
+    private int mLabelTextSize = DpConverter.dpToPx(5);
+    private int mLabelSpacing = DpConverter.dpToPx(10);
 
     public FloatingActionMenu(Context context) {
         this(context,null);
@@ -124,6 +120,9 @@ public class FloatingActionMenu extends ViewGroup {
                 TextView label = new TextView(getContext());
                 label.setBackgroundResource(R.drawable.fab_label);
                 label.setText(child.getLabel());
+                label.setTextSize(mLabelTextSize);
+                label.setTextColor(getResources().getColor(R.color.textColour, null));
+                label.setPadding(mLabelPaddingStart, mLabelPaddingTop, mLabelPaddingEnd, mLabelPaddingBottom);
                 labels.put(child, label);
                 addView(label);
             }
@@ -162,11 +161,13 @@ public class FloatingActionMenu extends ViewGroup {
             FamAnimation anim = mAnimFactory.collapse(this);
             anim.addFamAnimationListener(new FamAnimation.FamAnimationListener() {
                 @Override
-                public void onStart() {}
+                public void onStart() {
+                    switchLabelsVisibility(View.GONE);
+                }
 
                 @Override
                 public void onEnd() {
-                    switchChildrenVisibility(View.GONE);
+                    switchButtonVisibility(View.GONE);
                 }
             });
             anim.setDuration(instant ? 0 : COLLAPSE_ANIM_DURATION).start();
@@ -181,11 +182,13 @@ public class FloatingActionMenu extends ViewGroup {
             anim.addFamAnimationListener(new FamAnimation.FamAnimationListener() {
                 @Override
                 public void onStart() {
-                    switchChildrenVisibility(View.VISIBLE);
+                    switchButtonVisibility(View.VISIBLE);
                 }
 
                 @Override
-                public void onEnd() {}
+                public void onEnd() {
+                    switchLabelsVisibility(View.VISIBLE);
+                }
             });
             anim.setDuration(instant ? 0 : EXPAND_ANIM_DURATION).start();
             mMenuState = MENU_STATE_EXPANDED;
@@ -231,14 +234,25 @@ public class FloatingActionMenu extends ViewGroup {
         }
     }
 
-    private void switchChildrenVisibility(int visibility) {
+    private void switchButtonVisibility(int visibility) {
         for (int i = 0; i < getChildCount(); i++) {
             final View child = getChildAt(i);
-            if(!child.equals(floatingActionMenuMainButton)){
+            if(!child.equals(floatingActionMenuMainButton) && child instanceof FloatingActionMenuButton){
                 child.setVisibility(visibility);
             }
         }
         Log.v(TAG, String.format("Children button visibility set to %s", visibilityToString(visibility)));
+    }
+
+    private void switchLabelsVisibility(int visibility){
+        for (int i = 0; i < getChildCount(); i++) {
+            final View child = getChildAt(i);
+            if(child instanceof TextView){
+                child.setVisibility(visibility);
+            }
+        }
+        Log.v(TAG, String.format("Label visibility set to %s", visibilityToString(visibility)));
+
     }
 
     @Override
@@ -265,10 +279,10 @@ public class FloatingActionMenu extends ViewGroup {
                     measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
 
                     int labelWidth = 0;
-                    if (label != null) {
+                    if (label != null && label.getVisibility() != View.GONE) {
                         final LayoutParams labelLp = (LayoutParams) label.getLayoutParams();
                         measureChildWithMargins(label, widthMeasureSpec, 0, heightMeasureSpec, 0);
-                        labelWidth = labelLp.leftMargin + label.getMeasuredWidth() + labelLp.rightMargin;
+                        labelWidth = labelLp.leftMargin + mLabelPaddingStart + label.getMeasuredWidth() + mLabelPaddingEnd + labelLp.rightMargin + mLabelSpacing;
                     }
 
                     int childWidth = childLp.leftMargin + child.getMeasuredWidth() + childLp.rightMargin;
@@ -302,25 +316,25 @@ public class FloatingActionMenu extends ViewGroup {
             final View child = getChildAt(i);
             final View label = labels.get(child);
 
-            if (child instanceof FloatingActionMenuButton && !child.equals(floatingActionMenuMainButton) && child.getVisibility() != View.GONE) {
+            if (child instanceof FloatingActionMenuButton && !child.equals(floatingActionMenuMainButton) && child.getVisibility() == View.VISIBLE) {
                 final int childWidth = child.getMeasuredWidth();
                 final int childHeight = child.getMeasuredHeight();
 
                 final int childTop = stackedHeight - childHeight;
                 final int childBottom = childTop + childHeight;
-                final int childRight = parentWidth - childWidth + (getFloatingActionMenuMainButton().getMeasuredWidth() - childWidth) / 2; //TODO check rightpadding
+                final int childRight = getFloatingActionMenuMainButton().getRight() - (getFloatingActionMenuMainButton().getMeasuredWidth() - child.getMeasuredWidth()) / 2;
                 final int childLeft = childRight - childWidth;
                 Log.v(TAG, String.format("Layout child button %s: left=%s, top=%s, right=%s, bottom=%s", i, childLeft, childTop, childRight, childBottom));
 
                 child.layout(childLeft, childTop, childRight, childBottom);
 
-                if(label != null) {
+                if(label != null && label.getVisibility() == View.VISIBLE) {
                     final int labelWidth = label.getMeasuredWidth();
                     final int labelHeight = label.getMeasuredHeight();
 
                     final int labelTop = childTop + childHeight / 2 - labelHeight / 2;
                     final int labelBottom = labelTop + labelHeight;
-                    final int labelRight = childLeft;
+                    final int labelRight = childLeft - mLabelSpacing;
                     final int labelLeft = labelRight - labelWidth;
                     label.layout(labelLeft, labelTop, labelRight, labelBottom);
                 }
