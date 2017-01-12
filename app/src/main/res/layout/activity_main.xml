@@ -73,26 +73,23 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
-        addone:fam_menu_state="collapse"
+        addone:fam_menu_state="expanded"
         addone:fam_long_press="true"
-        addone:fam_size="56dp"
-        addone:fam_icon_size="28dp">
-        <nl.rdewildt.addone.fam.FloatingActionMenuButton
+        addone:fab_icon_src="@drawable/ic_add">
+        <nl.rdewildt.addone.fam.fab.FloatingActionMenuButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="addNewGoal"
-            addone:famb_label="Goals"
-            addone:famb_size="40dp"
-            addone:famb_icon_src="@drawable/ic_star"
-            addone:famb_icon_size="24dp"/>
-        <nl.rdewildt.addone.fam.FloatingActionMenuButton
+            addone:fab_icon_src="@drawable/ic_star"
+            addone:fab_label_text="Goals"
+            addone:fab_label_spacing="20dp"/>
+        <nl.rdewildt.addone.fam.fab.FloatingActionMenuButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="manageBonuses"
-            addone:famb_label="Bonuses"
-            addone:famb_size="40dp"
-            addone:famb_icon_src="@drawable/ic_star"
-            addone:famb_icon_size="24dp"/>
+            addone:fab_label_text="Bonuses"
+            addone:fab_icon_src="@drawable/ic_star"
+            addone:fab_label_spacing="20dp"/>
     </nl.rdewildt.addone.fam.FloatingActionMenu>
 
 </android.support.design.widget.CoordinatorLayout>

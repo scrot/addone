@@ -3,7 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="textColour">#FFFFFF</color>
+    <color name="textColor">#FFFFFF</color>
     <color name="textColour2">#FF616161</color>
     <color name="FabItemClicked">#f590b2</color>
     <color name="blackFabLabel">#64000000</color>

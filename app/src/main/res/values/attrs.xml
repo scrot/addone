@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="fab_button_size" format="dimension" />
+    <attr name="fab_background_color" format="color" />
+    <attr name="fab_label_spacing" format="dimension"/>
+    <attr name="fab_label_text" format="string"/>
+    <attr name="fab_label_text_color" format="color"/>
+    <attr name="fab_icon_size" format="dimension"/>
+    <attr name="fab_icon_src" format="reference"/>
+    <attr name="fab_icon_color" format="color" />
+
     <declare-styleable name="FloatingActionMenu">
         <attr name="fam_menu_state" format="enum">
             <enum name="collapse" value="2"/>
@@ -7,14 +16,25 @@
         </attr>
         <attr name="fam_long_press" format="boolean" />
         <attr name="fam_menu_spacing" format="dimension" />
-        <attr name="fam_size" format="dimension" />
-        <attr name="fam_icon_src" format="integer" />
-        <attr name="fam_icon_size" format="dimension" />
+        <attr name="fab_button_size"/>
+        <attr name="fab_background_color" />
+        <attr name="fab_label_spacing" />
+        <attr name="fab_label_text" />
+        <attr name="fab_label_text_color" />
+        <attr name="fab_icon_size"/>
+        <attr name="fab_icon_src" />
+        <attr name="fab_icon_color" />
     </declare-styleable>
+
     <declare-styleable name="FloatingActionMenuButton">
-        <attr name="famb_size" format="dimension" />
-        <attr name="famb_icon_src" format="integer" />
-        <attr name="famb_icon_size" format="dimension" />
-        <attr name="famb_label" format="string" />
+        <attr name="fab_button_size"/>
+        <attr name="fab_background_color" />
+        <attr name="fab_label_spacing" />
+        <attr name="fab_label_text" />
+        <attr name="fab_label_text_color" />
+        <attr name="fab_icon_size"/>
+        <attr name="fab_icon_src" />
+        <attr name="fab_icon_color" />
     </declare-styleable>
+
 </resources>

@@ -60,7 +60,7 @@
         android:layout_below="@id/goal_points_needed_label"/>
     <Button
         android:text="@string/add_goal_button"
-        android:textColor="@color/textColour"
+        android:textColor="@color/textColor"
         android:backgroundTint="@color/colorAccent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

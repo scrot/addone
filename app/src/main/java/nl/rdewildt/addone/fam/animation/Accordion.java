@@ -7,7 +7,7 @@ import android.animation.ObjectAnimator;
 import android.view.View;
 
 import nl.rdewildt.addone.fam.FloatingActionMenu;
-import nl.rdewildt.addone.fam.FloatingActionMenuButton;
+import nl.rdewildt.addone.fam.fab.FloatingActionMenuButton;
 
 /**
  * Created by roydewildt on 02/01/2017.
