@@ -7,10 +7,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 
 import nl.rdewildt.addone.R;
 import nl.rdewildt.addone.fam.animation.FamAnimation;
@@ -40,8 +44,8 @@ public class FloatingActionMenu extends ViewGroup {
     private int mRestoredPrevMenuState = MENU_STATE_NONE;
 
     // Animations
-    public static final int COLLAPSE_ANIM_DURATION = 150;
-    public static final int EXPAND_ANIM_DURATION = 150;
+    public static final int COLLAPSE_ANIM_DURATION = 600;
+    public static final int EXPAND_ANIM_DURATION = 600;
     public static final int FADE_IN_ANIM_DURATION = 300;
     public static final int FADE_OUT_ANIM_DURATION = 300;
 
@@ -129,13 +133,12 @@ public class FloatingActionMenu extends ViewGroup {
     }
 
     public void collapse(boolean instant) {
-        //TODO hide labels
         if(mMenuState != MENU_STATE_COLLAPSED) {
             FamAnimation anim = mAnimFactory.collapse(this);
             anim.addFamAnimationListener(new FamAnimation.FamAnimationListener() {
                 @Override
                 public void onStart() {
-                    switchLabelsVisibility(View.GONE);
+
                 }
 
                 @Override
@@ -143,7 +146,10 @@ public class FloatingActionMenu extends ViewGroup {
                     switchButtonVisibility(View.GONE);
                 }
             });
-            anim.setDuration(instant ? 0 : COLLAPSE_ANIM_DURATION).start();
+            anim.setDuration(instant ? 0 : COLLAPSE_ANIM_DURATION)
+                    .setChildInterpolator(new AccelerateInterpolator())
+                    .setMainInterpolator(new OvershootInterpolator())
+                    .start();
             mMenuState = MENU_STATE_COLLAPSED;
             Log.v(TAG, "Started collapse animation");
         }
@@ -160,10 +166,13 @@ public class FloatingActionMenu extends ViewGroup {
 
                 @Override
                 public void onEnd() {
-                    switchLabelsVisibility(View.VISIBLE);
+
                 }
             });
-            anim.setDuration(instant ? 0 : EXPAND_ANIM_DURATION).start();
+            anim.setDuration(instant ? 0 : EXPAND_ANIM_DURATION)
+                    .setChildInterpolator(new DecelerateInterpolator())
+                    .setMainInterpolator(new OvershootInterpolator())
+                    .start();
             mMenuState = MENU_STATE_EXPANDED;
             Log.v(TAG, "Started expand animation");
         }
@@ -243,11 +252,12 @@ public class FloatingActionMenu extends ViewGroup {
         int childState = 0;
 
         for (int i = 0; i < getChildCount(); i++) {
-            final View child = getChildAt(i);
+            final FloatingActionMenuButton child = (FloatingActionMenuButton) getChildAt(i);
             if (child.getVisibility() != View.GONE) {
                 final LayoutParams childLp = (LayoutParams) child.getLayoutParams();
                 measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
-                int childWidth = childLp.leftMargin + child.getMeasuredWidth() + childLp.rightMargin;
+                int childCenteringSpacing = (floatingActionMenuMainButton.getIcon().getMeasuredWidth() - child.getIcon().getMeasuredWidth()) / 2;
+                int childWidth = childLp.leftMargin + child.getMeasuredWidth() + childLp.rightMargin + childCenteringSpacing;
                 maxWidth = Math.max(maxWidth, childWidth);
                 maxHeight += child.getMeasuredHeight() + childLp.topMargin + childLp.bottomMargin + childSpacing;
                 childState = combineMeasuredStates(childState, child.getMeasuredState());
@@ -273,7 +283,7 @@ public class FloatingActionMenu extends ViewGroup {
 
         int stackedHeight = parentHeight - (floatingActionMenuMainButton.getMeasuredHeight() + childSpacing);
         for (int i = 0; i < getChildCount(); i++) {
-            final View child = getChildAt(i);
+            final FloatingActionMenuButton child = (FloatingActionMenuButton) getChildAt(i);
 
             if (!child.equals(floatingActionMenuMainButton)) {
                 final int childWidth = child.getMeasuredWidth();
@@ -281,7 +291,7 @@ public class FloatingActionMenu extends ViewGroup {
 
                 final int childTop = stackedHeight - childHeight;
                 final int childBottom = childTop + childHeight;
-                final int childRight = parentWidth;
+                final int childRight = parentWidth - (floatingActionMenuMainButton.getIcon().getMeasuredWidth() - child.getIcon().getMeasuredWidth()) / 2;
                 final int childLeft = childRight - childWidth;
                 Log.v(TAG, String.format("Layout child button %s: left=%s, top=%s, right=%s, bottom=%s", i, childLeft, childTop, childRight, childBottom));
                 child.layout(childLeft, childTop, childRight, childBottom);

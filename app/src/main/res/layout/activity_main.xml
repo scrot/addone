@@ -73,6 +73,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
+        addone:fab_button_size="@dimen/fab_size_normal"
         addone:fam_menu_state="expanded"
         addone:fam_long_press="true"
         addone:fab_icon_src="@drawable/ic_add">
@@ -80,16 +81,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="addNewGoal"
+            addone:fab_button_size="@dimen/fab_size_mini"
             addone:fab_icon_src="@drawable/ic_star"
             addone:fab_label_text="Goals"
-            addone:fab_label_spacing="20dp"/>
+            addone:fab_label_spacing="10dp"/>
         <nl.rdewildt.addone.fam.fab.FloatingActionMenuButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="manageBonuses"
+            addone:fab_button_size="@dimen/fab_size_mini"
             addone:fab_label_text="Bonuses"
             addone:fab_icon_src="@drawable/ic_star"
-            addone:fab_label_spacing="20dp"/>
+            addone:fab_label_spacing="10dp"/>
     </nl.rdewildt.addone.fam.FloatingActionMenu>
 
 </android.support.design.widget.CoordinatorLayout>

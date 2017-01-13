@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.VectorDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -16,19 +17,13 @@ import android.widget.ImageButton;
  */
 
 public class FloatingActionMenuButtonIcon extends ImageButton {
-    private int mSize;
     private int mColor;
     private Drawable mIconSrc;
-    private int mIconSize;
-    private int mIconColor;
 
-    public FloatingActionMenuButtonIcon(Context context, int color, int size, Drawable icon, int iconSize, int iconColor){
+    public FloatingActionMenuButtonIcon(Context context, int color, Drawable icon){
         super(context);
-        this.mSize = size;
         this.mColor = color;
         this.mIconSrc = icon;
-        this.mIconSize = iconSize;
-        this.mIconColor = iconColor;
         init(context, null, 0, 0);
     }
 
@@ -57,10 +52,8 @@ public class FloatingActionMenuButtonIcon extends ImageButton {
         bg.getPaint().setColor(mColor);
         setBackground(bg);
 
-        Drawable icon = mIconSrc;
-        if(icon != null) {
-            icon.setColorFilter(mIconColor, PorterDuff.Mode.DST);
+        if(mIconSrc != null) {
+            setImageDrawable(mIconSrc);
         }
-        setImageDrawable(icon);
     }
 }

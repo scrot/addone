@@ -22,9 +22,7 @@ public class FloatingActionMenuButton extends RelativeLayout {
 
     private int mButtonSize;
     private Drawable mButtonIcon;
-    private int mButtonIconColor;
-    private int mButtonIconSize;
-    private int mButtonColor;
+    private int mButtonBgColor;
 
     private int mSpacing;
     private String mLabelText;
@@ -56,9 +54,7 @@ public class FloatingActionMenuButton extends RelativeLayout {
             mButtonSize = a.getDimensionPixelSize(R.styleable.FloatingActionMenuButton_fab_button_size, DpConverter.dpToPx(54));
             mLabelText = a.getString(R.styleable.FloatingActionMenuButton_fab_label_text);
             mButtonIcon = a.getDrawable(R.styleable.FloatingActionMenuButton_fab_icon_src);
-            mButtonIconColor = a.getColor(R.styleable.FloatingActionMenuButton_fab_icon_color, getResources().getColor(R.color.textColor, null));
-            mButtonIconSize = a.getDimensionPixelSize(R.styleable.FloatingActionMenuButton_fab_icon_size, DpConverter.dpToPx(30));
-            mButtonColor = a.getColor(R.styleable.FloatingActionMenuButton_fab_background_color, getResources().getColor(R.color.colorAccent, null));
+            mButtonBgColor = a.getColor(R.styleable.FloatingActionMenuButton_fab_background_color, getResources().getColor(R.color.colorAccent, null));
         }finally {
             a.recycle();
         }
@@ -79,7 +75,7 @@ public class FloatingActionMenuButton extends RelativeLayout {
         } else {
             iconLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
         }
-        icon = new FloatingActionMenuButtonIcon(context, mButtonColor, mButtonSize, mButtonIcon, mButtonIconSize, mButtonIconColor);
+        icon = new FloatingActionMenuButtonIcon(context, mButtonBgColor, mButtonIcon);
         icon.setClickable(false);
         icon.setId(generateViewId());
         addView(icon, iconLayoutParams);

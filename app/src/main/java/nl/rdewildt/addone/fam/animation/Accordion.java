@@ -6,6 +6,9 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.rdewildt.addone.fam.FloatingActionMenu;
 import nl.rdewildt.addone.fam.fab.FloatingActionMenuButton;
 
@@ -29,6 +32,7 @@ public class Accordion extends FamAnimation {
         this.rotateFrom = rotateFrom;
         this.rotateTo = rotateTo;
         this.translateDirection = translateDirection;
+        this.animatorSet = new AnimatorSet();
     }
 
     @Override
@@ -44,27 +48,41 @@ public class Accordion extends FamAnimation {
     }
 
     private void animate(int rotateFrom, int rotateTo, int translateDirection){
-        animatorSet = new AnimatorSet();
+        AnimatorSet buttonAnimations = new AnimatorSet();
+        AnimatorSet labelAnimations = new AnimatorSet();
+
         int count = getFloatingActionMenu().getChildCount();
         int spacing = getFloatingActionMenu().getChildSpacing();
         FloatingActionMenuButton main = getFloatingActionMenu().getFloatingActionMenuMainButton();
+
         //animate main button
         animatorSet.play(centeredRotation(main, rotateFrom, rotateTo, getDuration()));
 
         //set child animations
         int pos = getFloatingActionMenu().getFloatingActionMenuMainButton().getMeasuredHeight() + spacing;
         for (int i = 0; i < count; i++) {
-            final View child = getFloatingActionMenu().getChildAt(i);
+            final FloatingActionMenuButton child = (FloatingActionMenuButton) getFloatingActionMenu().getChildAt(i);
             if (!child.equals(main)) {
                 if(translateDirection == DIRECTION_UP) {
-                    animatorSet.play(yTranslation(child, pos, 0, getDuration()));
+                    buttonAnimations.play(yTranslation(child, pos, 0, getDuration()));
+                    if (child.hasLabel()) {
+                        labelAnimations.play(fade(child.getLabel(), 0f, 1f, getDuration()));
+                    }
                 }
                 else if (translateDirection == DIRECTION_DOWN) {
-                    animatorSet.play(yTranslation(child, 0, pos, getDuration()));
+                    buttonAnimations.play(yTranslation(child, 0, pos, getDuration()));
+                    labelAnimations.play(fade(child.getLabel(), 1f, 0f, getDuration()));
+                    labelAnimations.play(fade(child.getLabel(), 1f, 0f, getDuration()));
 
                 }
                 pos += child.getMeasuredHeight() + spacing;
             }
+        }
+
+        if(translateDirection == DIRECTION_UP) {
+            animatorSet.playSequentially(buttonAnimations, labelAnimations);
+        } else {
+            animatorSet.playSequentially(labelAnimations, buttonAnimations);
         }
 
         animatorSet.addListener(new AnimatorListenerAdapter() {
@@ -82,6 +100,13 @@ public class Accordion extends FamAnimation {
         });
 
         animatorSet.start();
+    }
+
+    private Animator fade(View child, float fromA, float toA, int duration){
+        final Animator animation = ObjectAnimator.ofFloat(child, "alpha", fromA, toA);
+        animation.setDuration(duration);
+        animation.setInterpolator(getChildInterpolator());
+        return animation;
     }
 
     private Animator yTranslation(View child, int fromY, int toY, int duration){
