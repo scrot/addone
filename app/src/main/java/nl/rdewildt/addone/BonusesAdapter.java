@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -31,6 +32,10 @@ public class BonusesAdapter extends RecyclerView.Adapter<BonusesAdapter.BonusVie
         holder.getTitle().setText(bonus.getName());
         holder.getPoints().setText(String.valueOf(bonus.getPoints()));
         holder.getReward().setText(String.valueOf(bonus.getReward()));
+        holder.getRemoveIcon().setOnClickListener(view -> {
+            bonuses.remove(bonus);
+            notifyItemRemoved(position);
+        });
     }
 
     @Override
@@ -38,16 +43,19 @@ public class BonusesAdapter extends RecyclerView.Adapter<BonusesAdapter.BonusVie
         return bonuses.size();
     }
 
+
     public static class BonusViewHolder extends RecyclerView.ViewHolder {
         private TextView title;
         private TextView points;
         private TextView reward;
+        private ImageView rmicon;
 
         public BonusViewHolder(View v) {
             super(v);
             this.title = (TextView) v.findViewById(R.id.bonustitle);
             this.points = (TextView) v.findViewById(R.id.bonuspoints);
             this.reward = (TextView) v.findViewById(R.id.bonusreward);
+            this.rmicon = (ImageView) v.findViewById(R.id.bonusremove);
         }
 
         public TextView getTitle() {
@@ -61,5 +69,7 @@ public class BonusesAdapter extends RecyclerView.Adapter<BonusesAdapter.BonusVie
         public TextView getReward() {
             return reward;
         }
+
+        public ImageView getRemoveIcon(){ return rmicon; }
     }
 }

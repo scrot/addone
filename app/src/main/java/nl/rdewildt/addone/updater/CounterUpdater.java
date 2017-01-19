@@ -9,21 +9,16 @@ import nl.rdewildt.addone.model.Counter;
  * Created by roydewildt on 29/08/16.
  */
 public abstract class CounterUpdater {
-    private Counter counter;
 
     public CounterUpdater(){}
 
-    public CounterUpdater(Counter counter){
-        this.counter = counter;
+    public abstract int cycleDiff(Counter counter);
+
+    public Boolean isNewCycle(Counter counter){
+        return cycleDiff(counter) > 0;
     }
 
-    public abstract int cycleDiff();
-
-    public Boolean isNewCycle(){
-        return cycleDiff() > 0;
-    }
-
-    public void increaseCounter(Bonus bonus){
+    public void increaseCounter(Counter counter, Bonus bonus){
         if(!counter.getSubValue().equals(bonus.getPoints())){
             counter.setSubValue(counter.getSubValue() + 1);
             if(counter.getSubValue().equals(bonus.getPoints())){
@@ -33,20 +28,11 @@ public abstract class CounterUpdater {
         }
     }
 
-    public void decreaseCounter(){
-        Integer cycleDiff = cycleDiff();
-        if(isNewCycle() && counter.getValue() > 0){
+    public void decreaseCounter(Counter counter){
+        Integer cycleDiff = cycleDiff(counter);
+        if(isNewCycle(counter) && counter.getValue() > 0){
             counter.setValue(counter.getValue() - cycleDiff); //TODO variable decreaseRate?
             counter.setLastUpdated(new DateTime().minusWeeks(1));
         }
     }
-
-    public Counter getCounter() {
-        return counter;
-    }
-
-    public void setCounter(Counter counter) {
-        this.counter = counter;
-    }
-
 }

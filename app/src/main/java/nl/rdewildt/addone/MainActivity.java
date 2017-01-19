@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
+import com.bignerdranch.android.multiselector.MultiSelector;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -39,23 +41,31 @@ public class MainActivity extends AppCompatActivity {
     private TextView counterView;
     private LinearLayout subCounterView;
     private RecyclerView goalsView;
+    private Menu menu;
+    private FloatingActionMenu fam;
+
+    private MultiSelector multiSelector;
+    private ModalMultiSelectorCallback deleteSelectedGoals;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //TODO addOne button unbinds after adding goal or bonus
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionMenu fam = (FloatingActionMenu) findViewById(R.id.fam);
-        fam.setOnClickListener(this::addOne);
+        fam = (FloatingActionMenu) findViewById(R.id.fam);
+        fam.setOnClickListener((view) -> {
+            if(fam.getMenuState() == FloatingActionMenu.MENU_STATE_COLLAPSED) {
+                addOne(view);
+            }
+        });
 
         setupCounter();
         setupSubCounter();
         setupGoals();
-
-        statsController.addBonus(new Bonus("hoi", 3, 1));
 
         // Open Reminder dialog
         /*if(statsController.isNewCycle()){
@@ -94,11 +104,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        statsController.addBonusesChangedListener(this::setupSubCounter);
+        statsController.addBonusesChangedListener(new StatsController.BonusesListener() {
+            @Override
+            public void onBonusAdded(Integer position) {
+
+            }
+
+            @Override
+            public void onBonusRemoved(Integer position) {
+
+            }
+
+            @Override
+            public void onBonusChanged() {
+                setupSubCounter();
+            }
+        });
     }
 
     private void setupSubCounter(){
-        // Init subcounterView
         subCounterView = (LinearLayout) findViewById(R.id.subcounter);
         subCounterView.removeAllViews();
 
@@ -115,8 +139,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupGoals(){
-        // Init goals
+        // Get goals view
         goalsView = (RecyclerView) findViewById(R.id.goals);
+
 
         // Setup goals view layout
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -127,7 +152,21 @@ public class MainActivity extends AppCompatActivity {
         GoalsAdapter adapter = new GoalsAdapter(statsController.getGoals());
         goalsView.setAdapter(adapter);
 
-        // Set listeners
+        // Set on multi-select listener
+        multiSelector = adapter.getMultiSelector();
+        adapter.addGoalViewOnClickListener(new GoalsAdapter.GoalViewOnClickListener() {
+            @Override
+            public void onClick(GoalsAdapter.GoalViewHolder goalViewHolder) {
+
+            }
+
+            @Override
+            public void onLongClick(GoalsAdapter.GoalViewHolder goalViewHolder) {
+                enableGoalsMenu();
+            }
+        });
+
+        // Set change listeners
         statsController.addGoalsChangedListeners(new StatsController.GoalsListener() {
             @Override
             public void onGoalAdded(Integer position) {
@@ -144,6 +183,22 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
+
+    }
+
+    private void disableGoalsMenu() {
+        multiSelector.clearSelections();
+        if(menu != null){
+            menu.setGroupVisible(R.id.goals_menu_context, false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        }
+    }
+
+    private void enableGoalsMenu() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if(menu != null){
+            menu.setGroupVisible(R.id.goals_menu_context, true);
+        }
     }
 
     public void addOne(View view){
@@ -154,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, AddGoalActivity.class);
         intent.putExtra("STATS_PATH", this.statspath.toString());
         startActivityForResult(intent, 1);
+
     }
 
     public void manageBonuses(View view){
@@ -166,12 +222,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 1){
+            fam.collapse(true);
             statsController.reloadStats();
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -188,7 +246,19 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(id.equals(R.id.action_reset)){
             statsController.resetStats();
-            statsController.addBonus(new Bonus("test", 3, 1)); //TODO testBonus
+        }
+        else if(id.equals(android.R.id.home)){
+            disableGoalsMenu();
+        }
+        else if(id.equals(R.id.goals_menu_delete)){
+            GoalsAdapter adapter = (GoalsAdapter) goalsView.getAdapter();
+            for(int i = adapter.getGoals().size() - 1; i >= 0; i--){
+                if(multiSelector.isSelected(i, 0)) {
+                    statsController.removeGoal(adapter.getGoals().get(i));
+                    adapter.notifyItemRemoved(i);
+                }
+            }
+            disableGoalsMenu();
         }
 
         return super.onOptionsItemSelected(item);

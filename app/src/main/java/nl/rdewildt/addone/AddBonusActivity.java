@@ -9,31 +9,32 @@ import android.widget.EditText;
 import java.io.File;
 
 import nl.rdewildt.addone.fam.FloatingActionMenu;
+import nl.rdewildt.addone.model.Bonus;
 import nl.rdewildt.addone.model.Goal;
 
-public class AddGoalActivity extends AppCompatActivity {
+public class AddBonusActivity extends AppCompatActivity {
     private File statspath;
 
-    private EditText goalName;
-    private EditText goalDescription;
-    private EditText goalPointsNeeded;
+    private EditText bonusName;
+    private EditText bonusPoints;
+    private EditText bonusReward;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_goal);
+        setContentView(R.layout.activity_add_bonus);
 
         //Set fam listeners
         FloatingActionMenu fam = (FloatingActionMenu) findViewById(R.id.fam);
-        fam.setOnClickListener(this::addGoal);
+        fam.setOnClickListener(this::addBonus);
 
         //Get used stats path
         this.statspath = new File(getIntent().getStringExtra("STATS_PATH"));
 
         //Collect input elements
-        this.goalName = (EditText) findViewById(R.id.goal_name_input);
-        this.goalDescription = (EditText) findViewById(R.id.goal_description_input);
-        this.goalPointsNeeded = (EditText) findViewById(R.id.goal_points_needed_input);
+        this.bonusName = (EditText) findViewById(R.id.bonus_name_input);
+        this.bonusPoints = (EditText) findViewById(R.id.bonus_points_needed_input);
+        this.bonusReward = (EditText) findViewById(R.id.bonus_reward_input);
 
         // Enable exit in actionbar
         if(getSupportActionBar() != null) {
@@ -52,11 +53,12 @@ public class AddGoalActivity extends AppCompatActivity {
     }
 
     //TODO Check for empty fields
-    public void addGoal(View view){
+    //TODO set max bonusPoints to 20
+    public void addBonus(View view){
         StatsController statsController = new StatsController(statspath);
-        statsController.addGoal(new Goal(goalName.getText().toString(),
-                goalDescription.getText().toString(),
-                Integer.parseInt(goalPointsNeeded.getText().toString())));
+        statsController.addBonus(new Bonus(bonusName.getText().toString(),
+                Integer.parseInt(bonusPoints.getText().toString()),
+                Integer.parseInt(bonusReward.getText().toString())));
         finish();
     }
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:addone="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_manage_goals"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,4 +15,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </android.support.v7.widget.RecyclerView>
+    <nl.rdewildt.addone.fam.FloatingActionMenu
+        android:id="@+id/fam"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        addone:fab_button_size="@dimen/fab_size_normal"
+        addone:fam_single_button="true"
+        addone:fab_icon_src="@drawable/ic_add"/>
 </RelativeLayout>

@@ -16,6 +16,7 @@
         </attr>
         <attr name="fam_long_press" format="boolean" />
         <attr name="fam_menu_spacing" format="dimension" />
+        <attr name="fam_single_button" format="boolean" />
         <attr name="fab_button_size"/>
         <attr name="fab_icon_src" />
         <attr name="fab_background_color" />

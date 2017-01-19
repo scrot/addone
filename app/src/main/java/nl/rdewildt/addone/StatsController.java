@@ -46,6 +46,8 @@ public class StatsController {
     }
 
     public interface BonusesListener {
+        void onBonusAdded(Integer position);
+        void onBonusRemoved(Integer position);
         void onBonusChanged();
     }
 
@@ -58,7 +60,6 @@ public class StatsController {
         this.stats = new Stats(statspath);
 
         this.counterUpdater = counterUpdater;
-        counterUpdater.setCounter(getCounter());
 
         this.counterChangedListeners = new ArrayList<>();
         this.goalsChangedListeners  = new ArrayList<>();
@@ -83,7 +84,22 @@ public class StatsController {
         });
 
         this.releventBonuses = buildRelevantBonuses();
-        addBonusesChangedListener(() -> releventBonuses = buildRelevantBonuses());
+        addBonusesChangedListener(new BonusesListener() {
+            @Override
+            public void onBonusAdded(Integer position) {
+
+            }
+
+            @Override
+            public void onBonusRemoved(Integer position) {
+
+            }
+
+            @Override
+            public void onBonusChanged() {
+                releventBonuses = buildRelevantBonuses();
+            }
+        });
     }
 
     /*
@@ -91,16 +107,15 @@ public class StatsController {
      */
 
     public void increaseCounter() {
-        counterUpdater.increaseCounter(getRelevantBonus());
+        counterUpdater.increaseCounter(getCounter(), getRelevantBonus());
         syncRelevantBonuses();
-        stats.writeStats();
-        notifyCounterValueChanged();
-        notifySubCounterValueChanged();
+        writeStats();
+        notifyCounterChanged();
     }
 
     public void decreaseCounter() {
-        counterUpdater.decreaseCounter();
-        stats.writeStats();
+        counterUpdater.decreaseCounter(getCounter());
+        writeStats();
         notifyCounterValueChanged();
     }
 
@@ -117,7 +132,7 @@ public class StatsController {
 
     public void notifySubCounterValueChanged() {
         for(CounterListener counterListener : counterChangedListeners){
-            counterListener.onSubValueChanged(getCounter().getValue());
+            counterListener.onSubValueChanged(getCounter().getSubValue());
         }
     }
 
@@ -139,7 +154,7 @@ public class StatsController {
         int position = BinarySearch.binaryInsertIndex(goal, getGoals());
         getGoals().add(position, goal);
         notifyGoalAdded(position);
-        stats.writeStats();
+        writeStats();
     }
 
     public void removeGoal(Goal goal) {
@@ -147,7 +162,7 @@ public class StatsController {
             int position = getGoals().indexOf(goal);
             getGoals().remove(position);
             notifyGoalRemoved(position);
-            stats.writeStats();
+            writeStats();
         }
     }
 
@@ -158,12 +173,14 @@ public class StatsController {
     public void notifyGoalAdded(Integer position) {
         for(GoalsListener goalsListener : goalsChangedListeners){
             goalsListener.onGoalAdded(position);
+            goalsListener.onGoalsChanged();
         }
     }
 
     public void notifyGoalRemoved(Integer position) {
         for(GoalsListener goalsListener : goalsChangedListeners){
             goalsListener.onGoalRemoved(position);
+            goalsListener.onGoalsChanged();
         }
     }
 
@@ -202,20 +219,41 @@ public class StatsController {
     public void addBonus(Bonus bonus){
         if(!getBonuses().contains(bonus)) {
             getBonuses().add(bonus);
-            notifyBonusChanged();
-            stats.writeStats();
+            notifyBonusesChanged();
+            writeStats();
         }
     }
 
     public void removeBonus(Bonus bonus){
         if(getBonuses().contains(bonus)){
             getBonuses().remove(bonus);
-            notifyBonusChanged();
-            stats.writeStats();
+            notifyBonusesChanged();
+            writeStats();
         }
     }
 
-    public void notifyBonusChanged() {
+    public void setBonuses(List<Bonus> bonuses){
+        this.stats.setBonuses(bonuses);
+        notifyBonusesChanged();
+        writeStats();
+    }
+
+
+    public void notifyBonusAdded(Integer position) {
+        for(BonusesListener bonusesListener : bonusesChangedListeners) {
+            bonusesListener.onBonusAdded(position);
+            bonusesListener.onBonusChanged();
+        }
+    }
+
+    public void notifyBonusRemoved(Integer position) {
+        for(BonusesListener bonusesListener : bonusesChangedListeners){
+            bonusesListener.onBonusRemoved(position);
+            bonusesListener.onBonusChanged();
+        }
+    }
+
+    public void notifyBonusesChanged() {
         for(BonusesListener bonusesListener : bonusesChangedListeners){
             bonusesListener.onBonusChanged();
         }
@@ -267,15 +305,15 @@ public class StatsController {
             increaseCounter();
             counter.setLastUpdated(new DateTime().minusWeeks(1));
         }
-        stats.writeStats();
+        writeStats();
     }
 
     public Boolean isNewCycle() {
-        return counterUpdater.isNewCycle();
+        return counterUpdater.isNewCycle(getCounter());
     }
 
     public int cycleDiff(){
-        return counterUpdater.cycleDiff();
+        return counterUpdater.cycleDiff(getCounter());
     }
 
     /*
@@ -286,13 +324,17 @@ public class StatsController {
         stats.resetStats();
         notifyCounterChanged();
         notifyGoalsChanged();
-        notifyBonusChanged();
+        notifyBonusesChanged();
     }
 
     public void reloadStats(){
         stats.syncStats();
         notifyCounterChanged();
         notifyGoalsChanged();
-        notifyBonusChanged();
+        notifyBonusesChanged();
+    }
+
+    public void writeStats(){
+        stats.writeStats();
     }
 }

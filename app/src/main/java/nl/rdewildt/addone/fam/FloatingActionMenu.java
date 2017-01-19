@@ -44,8 +44,8 @@ public class FloatingActionMenu extends ViewGroup {
     private int mRestoredPrevMenuState = MENU_STATE_NONE;
 
     // Animations
-    public static final int COLLAPSE_ANIM_DURATION = 600;
-    public static final int EXPAND_ANIM_DURATION = 600;
+    public static final int COLLAPSE_ANIM_DURATION = 150;
+    public static final int EXPAND_ANIM_DURATION = 150;
     public static final int FADE_IN_ANIM_DURATION = 300;
     public static final int FADE_OUT_ANIM_DURATION = 300;
 
@@ -54,10 +54,7 @@ public class FloatingActionMenu extends ViewGroup {
     // Attribute set
     private int childSpacing;
     private boolean mLongPressMenuToggle;
-    private int mSize;
-    private Drawable mIcon;
-    private int mIconSize;
-    private int mLabelSpacing = DpConverter.dpToPx(10);
+    private boolean mIsSingleButton;
 
     public FloatingActionMenu(Context context) {
         super(context);
@@ -80,24 +77,28 @@ public class FloatingActionMenu extends ViewGroup {
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.FloatingActionMenu);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FloatingActionMenu);
         try {
-            this.mRestoredMenuState = array.getInteger(R.styleable.FloatingActionMenu_fam_menu_state, mMenuState);
-            this.childSpacing = array.getDimensionPixelSize(R.styleable.FloatingActionMenu_fam_menu_spacing, DpConverter.dpToPx(8));
-            this.mLongPressMenuToggle = array.getBoolean(R.styleable.FloatingActionMenu_fam_long_press, false);
+            this.mRestoredMenuState = a.getInteger(R.styleable.FloatingActionMenu_fam_menu_state, mMenuState);
+            this.childSpacing = a.getDimensionPixelSize(R.styleable.FloatingActionMenu_fam_menu_spacing, DpConverter.dpToPx(8));
+            this.mLongPressMenuToggle = a.getBoolean(R.styleable.FloatingActionMenu_fam_long_press, false);
+            this.mIsSingleButton = a.getBoolean(R.styleable.FloatingActionMenu_fam_single_button, false);
         } finally {
-            array.recycle();
+            a.recycle();
         }
+
+        if(isSingleButton()){
+            this.mLongPressMenuToggle = false;
+            this.mRestoredMenuState = MENU_STATE_NONE;
+            this.childSpacing = 0;
+        }
+
         addMainFloatingActionButton(context, attrs, defStyleAttr, defStyleRes);
         addOnLayoutChangeListener((view, i, i1, i2, i3, i4, i5, i6, i7) -> restoreMenu());
     }
 
     public FloatingActionMenuButton getFloatingActionMenuMainButton() {
         return floatingActionMenuMainButton;
-    }
-
-    public int getChildSpacing() {
-        return childSpacing;
     }
 
     private void addMainFloatingActionButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes){
@@ -132,6 +133,27 @@ public class FloatingActionMenu extends ViewGroup {
         floatingActionMenuMainButton.bringToFront();
     }
 
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        if(getFloatingActionMenuMainButton() != null){
+            getFloatingActionMenuMainButton().setOnClickListener(l);
+        }
+    }
+
+    public int getMenuState(){
+        return mMenuState;
+    }
+
+    public int getChildSpacing() {
+        return childSpacing;
+    }
+
+    public boolean isSingleButton() { return mIsSingleButton; }
+
+    /*
+     * Menu Behaviour
+     */
+
     public void collapse(boolean instant) {
         if(mMenuState != MENU_STATE_COLLAPSED) {
             FamAnimation anim = mAnimFactory.collapse(this);
@@ -147,7 +169,7 @@ public class FloatingActionMenu extends ViewGroup {
                 }
             });
             anim.setDuration(instant ? 0 : COLLAPSE_ANIM_DURATION)
-                    .setChildInterpolator(new AccelerateInterpolator())
+                    .setChildInterpolator(new FastOutLinearInInterpolator())
                     .setMainInterpolator(new OvershootInterpolator())
                     .start();
             mMenuState = MENU_STATE_COLLAPSED;
@@ -170,7 +192,7 @@ public class FloatingActionMenu extends ViewGroup {
                 }
             });
             anim.setDuration(instant ? 0 : EXPAND_ANIM_DURATION)
-                    .setChildInterpolator(new DecelerateInterpolator())
+                    .setChildInterpolator(new FastOutLinearInInterpolator())
                     .setMainInterpolator(new OvershootInterpolator())
                     .start();
             mMenuState = MENU_STATE_EXPANDED;
@@ -226,23 +248,9 @@ public class FloatingActionMenu extends ViewGroup {
         Log.v(TAG, String.format("Children button visibility set to %s", visibilityToString(visibility)));
     }
 
-    private void switchLabelsVisibility(int visibility){
-        for (int i = 0; i < getChildCount(); i++) {
-            final FloatingActionMenuButton child = (FloatingActionMenuButton) getChildAt(i);
-            if(child.hasLabel()) {
-                child.getLabel().setVisibility(visibility);
-            }
-        }
-        Log.v(TAG, String.format("Label visibility set to %s", visibilityToString(visibility)));
-
-    }
-
-    @Override
-    public void setOnClickListener(OnClickListener l) {
-        if(floatingActionMenuMainButton != null) {
-            floatingActionMenuMainButton.setOnClickListener(l);
-        }
-    }
+    /*
+     * Menu Layout
+     */
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -277,10 +285,28 @@ public class FloatingActionMenu extends ViewGroup {
         final int parentWidth = right - left;
         final int parentHeight = bottom - top;
 
-        layoutFam(parentWidth, parentHeight);
+        layoutMain(parentWidth, parentHeight);
 
         Log.v(TAG, String.format("Menu state is %s", menuStateToString(mMenuState)));
 
+        layoutChildren(parentWidth, parentHeight);
+    }
+
+    private void layoutMain(int parentWidth, int parentHeight){
+        if(floatingActionMenuMainButton.getVisibility() != View.GONE) {
+            final int famWidth = floatingActionMenuMainButton.getMeasuredWidth();
+            final int famHeight = floatingActionMenuMainButton.getMeasuredHeight();
+
+            final int famTop = parentHeight - famHeight;
+            final int famBottom = famTop + famHeight;
+            final int famRight = parentWidth;
+            final int famLeft = famRight - famWidth;
+            Log.v(TAG, String.format("Layout main button: left=%s, top=%s, right=%s, bottom=%s", famLeft, famTop, famRight, famBottom));
+            floatingActionMenuMainButton.layout(famLeft, famTop, famRight, famBottom);
+        }
+    }
+
+    private void layoutChildren(int parentWidth, int parentHeight) {
         int stackedHeight = parentHeight - (floatingActionMenuMainButton.getMeasuredHeight() + childSpacing);
         for (int i = 0; i < getChildCount(); i++) {
             final FloatingActionMenuButton child = (FloatingActionMenuButton) getChildAt(i);
@@ -297,20 +323,6 @@ public class FloatingActionMenu extends ViewGroup {
                 child.layout(childLeft, childTop, childRight, childBottom);
                 stackedHeight = stackedHeight - (childHeight + childSpacing);
             }
-        }
-    }
-
-    private void layoutFam(int parentWidth, int parentHeight){
-        if(floatingActionMenuMainButton.getVisibility() != View.GONE) {
-            final int famWidth = floatingActionMenuMainButton.getMeasuredWidth();
-            final int famHeight = floatingActionMenuMainButton.getMeasuredHeight();
-
-            final int famTop = parentHeight - famHeight;
-            final int famBottom = famTop + famHeight;
-            final int famRight = parentWidth;
-            final int famLeft = famRight - famWidth;
-            Log.v(TAG, String.format("Layout main button: left=%s, top=%s, right=%s, bottom=%s", famLeft, famTop, famRight, famBottom));
-            floatingActionMenuMainButton.layout(famLeft, famTop, famRight, famBottom);
         }
     }
 

@@ -84,7 +84,6 @@ public class Stats {
     public void syncStats() {
         Stats stats = readStats();
 
-        counter = new Counter();
         counter = stats.getCounter();
 
         goals.clear();

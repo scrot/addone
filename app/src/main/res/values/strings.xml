@@ -19,14 +19,21 @@
     <string name="pref_header_counter">Counter Behaviour</string>
     <string name="pref_counter_value">Counter value</string>
 
-    <!-- Strings related to Add Goal -->
-    <string name="add_goal">Add new goal</string>
+    <!-- Strings related to Add Goals -->
+    <string name="goal_add_new">Add new goal</string>
     <string name="goal_name">Goal name</string>
     <string name="goal_description">Goal description</string>
     <string name="goal_points_needed">Points required</string>
     <string name="add_goal_button">Add</string>
     <string name="reward">Reward</string>
     <string name="points_needed">Points needed</string>
+
+    <!-- Strings related to Manage bonuses -->
+    <string name="bonus_add_new">Add new bonus</string>
+    <string name="bonus_name">Bonus name</string>
+    <string name="bonus_points_needed">Points required</string>
+    <string name="bonus_reward">Reward earned</string>
+    <string name="deleteSelectedGoals">Delete</string>
 
 
 </resources>
