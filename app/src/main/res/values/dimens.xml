@@ -2,12 +2,15 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+
     <dimen name="subcounter_horizontal_margin">4dp</dimen>
 
     <dimen name="bonus_item_sub_text_size">16sp</dimen>
     <dimen name="bonus_item_sub_text_end_margin">6dp</dimen>
 
     <dimen name="goal_item_vertical_padding">14dp</dimen>
+    <dimen name="goals_bottom_padding">50dp</dimen>
+    <dimen name="goals_top_margin">8dp</dimen>
 
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="fab_size_mini">40dp</dimen>

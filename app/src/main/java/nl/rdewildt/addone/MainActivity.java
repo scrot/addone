@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,13 +40,11 @@ public class MainActivity extends AppCompatActivity {
     private StatsController statsController;
 
     private TextView counterView;
-    private LinearLayout subCounterView;
     private RecyclerView goalsView;
-    private Menu menu;
     private FloatingActionMenu fam;
 
     private MultiSelector multiSelector;
-    private ModalMultiSelectorCallback deleteSelectedGoals;
+    private ModalMultiSelectorCallback modalMultiSelectorCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +55,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        fam = (FloatingActionMenu) findViewById(R.id.fam);
-        fam.setOnClickListener((view) -> {
-            if(fam.getMenuState() == FloatingActionMenu.MENU_STATE_COLLAPSED) {
+        this.fam = (FloatingActionMenu) findViewById(R.id.fam);
+        this.fam.setOnClickListener((view) -> {
+            if(this.fam.getMenuState() == FloatingActionMenu.MENU_STATE_COLLAPSED) {
                 addOne(view);
             }
         });
@@ -73,8 +72,10 @@ public class MainActivity extends AppCompatActivity {
         }*/
 
         // implement the App Indexing API
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        this.client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
+
+
 
     private void setupCounter(){
         // Init counterView maintainer
@@ -123,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupSubCounter(){
-        subCounterView = (LinearLayout) findViewById(R.id.subcounter);
+        LinearLayout subCounterView = (LinearLayout) findViewById(R.id.subcounter);
         subCounterView.removeAllViews();
 
         Bonus relevantBonus = statsController.getRelevantBonus();
@@ -154,6 +155,31 @@ public class MainActivity extends AppCompatActivity {
 
         // Set on multi-select listener
         multiSelector = adapter.getMultiSelector();
+        modalMultiSelectorCallback = new ModalMultiSelectorCallback(multiSelector) {
+            @Override
+            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+                super.onCreateActionMode(actionMode, menu);
+                getMenuInflater().inflate(R.menu.goals_menu, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                if(item.getItemId() == R.id.action_delete) {
+                    GoalsAdapter adapter = (GoalsAdapter) goalsView.getAdapter();
+                    for (int i = adapter.getGoals().size() - 1; i >= 0; i--) {
+                        if (multiSelector.isSelected(i, 0)) {
+                            statsController.removeGoal(adapter.getGoals().get(i));
+                            adapter.notifyItemRemoved(i);
+                        }
+                    }
+                    multiSelector.clearSelections();
+                    multiSelector.setSelectable(false);
+                    return true;
+                }
+                return false;
+            }
+        };
         adapter.addGoalViewOnClickListener(new GoalsAdapter.GoalViewOnClickListener() {
             @Override
             public void onClick(GoalsAdapter.GoalViewHolder goalViewHolder) {
@@ -162,7 +188,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onLongClick(GoalsAdapter.GoalViewHolder goalViewHolder) {
-                enableGoalsMenu();
+                modalMultiSelectorCallback.setClearOnPrepare(false);
+                startSupportActionMode(modalMultiSelectorCallback);
             }
         });
 
@@ -184,21 +211,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-    private void disableGoalsMenu() {
-        multiSelector.clearSelections();
-        if(menu != null){
-            menu.setGroupVisible(R.id.goals_menu_context, false);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        }
-    }
-
-    private void enableGoalsMenu() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        if(menu != null){
-            menu.setGroupVisible(R.id.goals_menu_context, true);
-        }
     }
 
     public void addOne(View view){
@@ -229,8 +241,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        this.menu = menu;
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 
@@ -246,19 +257,6 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(id.equals(R.id.action_reset)){
             statsController.resetStats();
-        }
-        else if(id.equals(android.R.id.home)){
-            disableGoalsMenu();
-        }
-        else if(id.equals(R.id.goals_menu_delete)){
-            GoalsAdapter adapter = (GoalsAdapter) goalsView.getAdapter();
-            for(int i = adapter.getGoals().size() - 1; i >= 0; i--){
-                if(multiSelector.isSelected(i, 0)) {
-                    statsController.removeGoal(adapter.getGoals().get(i));
-                    adapter.notifyItemRemoved(i);
-                }
-            }
-            disableGoalsMenu();
         }
 
         return super.onOptionsItemSelected(item);

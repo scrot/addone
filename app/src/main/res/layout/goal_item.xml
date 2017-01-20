@@ -29,7 +29,7 @@
         android:id="@+id/goalpoints"
         android:textSize="20sp"
         android:layout_alignParentEnd="true"
-        android:layout_centerInParent="true"
+        android:layout_centerVertical="true"
         android:layout_height="match_parent"
-        android:layout_width="20dp"/>
+        android:layout_width="40dp"/>
 </RelativeLayout>

@@ -34,7 +34,7 @@ public class BonusesAdapter extends RecyclerView.Adapter<BonusesAdapter.BonusVie
         holder.getReward().setText(String.valueOf(bonus.getReward()));
         holder.getRemoveIcon().setOnClickListener(view -> {
             bonuses.remove(bonus);
-            notifyItemRemoved(position);
+            notifyDataSetChanged();
         });
     }
 

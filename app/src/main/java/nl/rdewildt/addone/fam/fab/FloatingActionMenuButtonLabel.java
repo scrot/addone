@@ -19,7 +19,7 @@ public class FloatingActionMenuButtonLabel extends TextView {
     private int mLabelRadius = DpConverter.dpToPx(2);
     private int mLabelTextColor = Color.WHITE;
     private int mLabelBackgroundColor = Color.GRAY;
-    private int mLabelAlpha = 150;
+    private int mLabelAlpha = 220;
     private int mLabelPaddingStart = DpConverter.dpToPx(8);
     private int mLabelPaddingEnd = DpConverter.dpToPx(8);
     private int mLabelPaddingTop = DpConverter.dpToPx(4);

@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.util.AttributeSet;
@@ -245,7 +246,7 @@ public class FloatingActionMenu extends ViewGroup {
                 child.setVisibility(visibility);
             }
         }
-        Log.v(TAG, String.format("Children button visibility set to %s", visibilityToString(visibility)));
+        //Log.v(TAG, String.format("Children button visibility set to %s", visibilityToString(visibility)));
     }
 
     /*
@@ -276,7 +277,7 @@ public class FloatingActionMenu extends ViewGroup {
         maxHeight = Math.max(maxHeight - childSpacing, getSuggestedMinimumHeight());
         maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 
-        Log.v(TAG, String.format("Measure menu: height=%s, width=%s", maxHeight, maxWidth));
+        //Log.v(TAG, String.format("Measure menu: height=%s, width=%s", maxHeight, maxWidth));
         setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, childState), resolveSizeAndState(maxHeight, heightMeasureSpec, childState));
     }
 
@@ -287,7 +288,7 @@ public class FloatingActionMenu extends ViewGroup {
 
         layoutMain(parentWidth, parentHeight);
 
-        Log.v(TAG, String.format("Menu state is %s", menuStateToString(mMenuState)));
+        //Log.v(TAG, String.format("Menu state is %s", menuStateToString(mMenuState)));
 
         layoutChildren(parentWidth, parentHeight);
     }
@@ -301,7 +302,7 @@ public class FloatingActionMenu extends ViewGroup {
             final int famBottom = famTop + famHeight;
             final int famRight = parentWidth;
             final int famLeft = famRight - famWidth;
-            Log.v(TAG, String.format("Layout main button: left=%s, top=%s, right=%s, bottom=%s", famLeft, famTop, famRight, famBottom));
+            //Log.v(TAG, String.format("Layout main button: left=%s, top=%s, right=%s, bottom=%s", famLeft, famTop, famRight, famBottom));
             floatingActionMenuMainButton.layout(famLeft, famTop, famRight, famBottom);
         }
     }
@@ -319,7 +320,7 @@ public class FloatingActionMenu extends ViewGroup {
                 final int childBottom = childTop + childHeight;
                 final int childRight = parentWidth - (floatingActionMenuMainButton.getIcon().getMeasuredWidth() - child.getIcon().getMeasuredWidth()) / 2;
                 final int childLeft = childRight - childWidth;
-                Log.v(TAG, String.format("Layout child button %s: left=%s, top=%s, right=%s, bottom=%s", i, childLeft, childTop, childRight, childBottom));
+                //Log.v(TAG, String.format("Layout child button %s: left=%s, top=%s, right=%s, bottom=%s", i, childLeft, childTop, childRight, childBottom));
                 child.layout(childLeft, childTop, childRight, childBottom);
                 stackedHeight = stackedHeight - (childHeight + childSpacing);
             }
@@ -381,6 +382,7 @@ public class FloatingActionMenu extends ViewGroup {
         return  ss;
     }
 
+    //TODO state cannot be cased to SavedState (caused by toolbar?)
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
         if(!(state instanceof SavedState)){
@@ -393,6 +395,8 @@ public class FloatingActionMenu extends ViewGroup {
 
         mRestoredMenuState = ss.menuState;
         mRestoredPrevMenuState = ss.prevMenuState;
+
+        restoreMenu();
 
         Log.v(TAG, String.format("Restored state: menustate=%s, prevmenustate=%s", menuStateToString(mRestoredMenuState), menuStateToString(mRestoredPrevMenuState)));
     }
